@@ -1,4 +1,4 @@
 package com.bhnatiuk.uni.bookstore.backend.dto;
 
-public record UserLoginRequest(String email, String password) {
+public record UserLoginRequest(String username, String password) {
 }

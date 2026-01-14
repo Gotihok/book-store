@@ -33,7 +33,7 @@ public class AuthController {
     public ResponseEntity<JwtResponse> login(@RequestBody UserLoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.email(), loginRequest.password()
+                        loginRequest.username(), loginRequest.password()
                 )
         );
 
