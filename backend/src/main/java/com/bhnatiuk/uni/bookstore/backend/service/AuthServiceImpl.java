@@ -5,19 +5,22 @@ import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse register(UserRegisterRequest registerRequest) {
         AppUser appUser = new AppUser();
         appUser.setUsername(registerRequest.username());
         appUser.setEmail(registerRequest.email());
-        appUser.setPassword(registerRequest.password());
+        appUser.setPassword(passwordEncoder.encode(registerRequest.password()));
 
         AppUser savedUser = userRepository.save(appUser);
 
