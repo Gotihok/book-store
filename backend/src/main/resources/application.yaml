@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    url: ${db-url}
+    username: ${db-user}
+    password: ${db-password}
+
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+logging:
+  level:
+    root: debug

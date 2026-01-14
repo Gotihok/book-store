@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - book-store-net
+    depends_on:
+      - postgres
+    environment:
+      DB_URL: ${POSTGRES_URL}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION: ${JWT_EXPIRATION}
+
+  postgres:
+    container_name: "postgres_db"
+    image: 'postgres:18.1'
+    restart: always
+    ports:
+      - '5433:5432'
+    networks:
+      - book-store-net
+    environment:
+      POSTGRES_DB: book-store-postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-vol:/var/lib/postgresql
+
+volumes:
+  postgres-vol:
+
+networks:
+  book-store-net:
+    driver: bridge
