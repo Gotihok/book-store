@@ -31,6 +31,7 @@ public class AuthController {
 
     @PostMapping("/api/auth/login")
     public ResponseEntity<JwtResponse> login(@RequestBody UserLoginRequest loginRequest) {
+        //TODO: probably i should extract that logic to AuthService and expose only 1 thin method for usage here
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.username(), loginRequest.password()
