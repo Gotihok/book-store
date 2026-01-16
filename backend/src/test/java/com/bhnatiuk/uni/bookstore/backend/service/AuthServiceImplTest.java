@@ -1,10 +1,13 @@
 package com.bhnatiuk.uni.bookstore.backend.service;
 
+import com.bhnatiuk.uni.bookstore.backend.dto.JwtResponse;
+import com.bhnatiuk.uni.bookstore.backend.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
 import com.bhnatiuk.uni.bookstore.backend.util.exception.CredentialsAlreadyInUseException;
+import com.bhnatiuk.uni.bookstore.backend.util.exception.LoginFailedException;
 import com.bhnatiuk.uni.bookstore.backend.util.exception.MalformedEmailException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +19,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.stream.Stream;
@@ -32,11 +39,19 @@ class AuthServiceImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private TokenService tokenService;
+
+    @Mock
+    private AuthenticationManager authenticationManager;
+
     @InjectMocks
     private AuthServiceImpl authServiceImpl;
 
     private UserRegisterRequest registerRequest;
     private UserResponse expectedResponse;
+
+    private UserLoginRequest loginRequest;
 
     @BeforeEach
     void setUp() {
@@ -45,6 +60,10 @@ class AuthServiceImplTest {
         );
         expectedResponse = new UserResponse(
                 1L, "testUsername", "test@mail.com"
+        );
+
+        loginRequest = new UserLoginRequest(
+                "testUsername", "testPassword"
         );
     }
 
@@ -154,5 +173,34 @@ class AuthServiceImplTest {
                 new UserRegisterRequest("testUsername", "test@mail.com", ""),
                 new UserRegisterRequest("testUsername", "test@mail.com", "   ")
         );
+    }
+
+    @Test
+    void login_shouldAuthenticateUser_whenCorrectCredentials() {
+        //given
+        Authentication authentication = mock(Authentication.class);
+
+        when(authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("testUsername");
+        when(tokenService.generateToken("testUsername")).thenReturn("test.jwt.token");
+
+        JwtResponse jwtResponse = authServiceImpl.login(loginRequest);
+
+        assertNotNull(jwtResponse);
+        assertEquals("test.jwt.token", jwtResponse.jwtToken());
+
+        verify(authenticationManager).authenticate(
+                new UsernamePasswordAuthenticationToken("testUsername", "testPassword")
+        );
+        verify(tokenService).generateToken("testUsername");
+    }
+
+    @Test
+    void login_shouldThrowLoginFailedException_whenUserAuthenticationFails() {
+        when(authenticationManager.authenticate(any(Authentication.class)))
+                .thenThrow(UsernameNotFoundException.class);
+
+        assertThrows(LoginFailedException.class, () -> authServiceImpl.login(loginRequest));
+        verify(tokenService, never()).generateToken(any());
     }
 }

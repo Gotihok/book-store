@@ -1,12 +1,19 @@
 package com.bhnatiuk.uni.bookstore.backend.service;
 
+import com.bhnatiuk.uni.bookstore.backend.dto.JwtResponse;
+import com.bhnatiuk.uni.bookstore.backend.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
 import com.bhnatiuk.uni.bookstore.backend.util.exception.CredentialsAlreadyInUseException;
+import com.bhnatiuk.uni.bookstore.backend.util.exception.LoginFailedException;
 import com.bhnatiuk.uni.bookstore.backend.util.exception.MalformedEmailException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +24,9 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    private final TokenService tokenService;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public UserResponse register(UserRegisterRequest registerRequest) {
@@ -42,5 +52,19 @@ public class AuthServiceImpl implements AuthService {
         AppUser savedUser = userRepository.save(appUser);
 
         return new UserResponse(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail());
+    }
+
+    @Override
+    public JwtResponse login(UserLoginRequest loginRequest) {
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password())
+            );
+        } catch (AuthenticationException e) {
+            throw new LoginFailedException("Login failed");
+        }
+        String jwt = tokenService.generateToken(authentication.getName());
+        return new JwtResponse(jwt);
     }
 }

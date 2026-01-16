@@ -5,12 +5,8 @@ import com.bhnatiuk.uni.bookstore.backend.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
-import com.bhnatiuk.uni.bookstore.backend.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    private final TokenService tokenService;
-    private final AuthenticationManager authenticationManager;
 
     @PostMapping("/api/auth/register")
     public ResponseEntity<UserResponse> register(@RequestBody UserRegisterRequest registerRequest) {
@@ -31,14 +25,8 @@ public class AuthController {
 
     @PostMapping("/api/auth/login")
     public ResponseEntity<JwtResponse> login(@RequestBody UserLoginRequest loginRequest) {
-        //TODO: probably i should extract that logic to AuthService and expose only 1 thin method for usage here
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.username(), loginRequest.password()
-                )
+        return ResponseEntity.ok(
+                authService.login(loginRequest)
         );
-
-        String jwt = tokenService.generateToken(authentication.getName());
-        return ResponseEntity.ok(new JwtResponse(jwt));
     }
 }
