@@ -9,6 +9,7 @@ import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
 import com.bhnatiuk.uni.bookstore.backend.util.exception.CredentialsAlreadyInUseException;
 import com.bhnatiuk.uni.bookstore.backend.util.exception.LoginFailedException;
 import com.bhnatiuk.uni.bookstore.backend.util.exception.MalformedEmailException;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
-    private static final String ALLOWED_EMAIL_PATTERN_REGEX = "^(\\S+)@(.+\\..+)$";
+    private static final String ALLOWED_EMAIL_PATTERN_REGEX = "^(\\S+)@(\\S+\\.\\S+)$";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -29,11 +30,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public UserResponse register(UserRegisterRequest registerRequest) {
-        if (registerRequest == null || registerRequest.isEmptyOrIncomplete()) {
-            throw new IllegalArgumentException("Malformed register request");
-        }
-
+    public UserResponse register(@NotNull UserRegisterRequest registerRequest) {
         if (!registerRequest.email().matches(ALLOWED_EMAIL_PATTERN_REGEX)) {
             throw new MalformedEmailException("Malformed email provided for registration");
         }
@@ -55,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public JwtResponse login(UserLoginRequest loginRequest) {
+    public JwtResponse login(@NotNull UserLoginRequest loginRequest) {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(

@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -24,8 +23,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -128,6 +125,11 @@ class AuthServiceImplTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
+            "whitespaces in username1@mail.com",
+            "whitespacesInUsername2 @mail.com",
+            "username@whitespace in domain1.com",
+            "username@mail.whitespace in domain2",
+            "username@mail. whitespaceInDomain3",
             "missingDomain",
             "@missingusername.com",
             "missingDomain@.com",
@@ -143,36 +145,6 @@ class AuthServiceImplTest {
                 () -> authServiceImpl.register(registerRequest)
         );
         verify(userRepository, never()).save(any());
-    }
-
-    @ParameterizedTest
-    @MethodSource("invalidRegisterRequests")
-    void register_shouldThrowIllegalArgumentException_whenRegisterRequestIsNullEmptyOrIncomplete(
-            UserRegisterRequest emptyRegisterRequest) {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> authServiceImpl.register(emptyRegisterRequest)
-        );
-        verify(userRepository, never()).save(any());
-    }
-
-    static  Stream<UserRegisterRequest> invalidRegisterRequests() {
-        return Stream.of(
-                null,
-                new UserRegisterRequest(null, null, null),
-
-                new UserRegisterRequest(null, "test@mail.com", "testPassword"),
-                new UserRegisterRequest("", "test@mail.com", "testPassword"),
-                new UserRegisterRequest("  ", "test@mail.com", "testPassword"),
-
-                new UserRegisterRequest("testUsername", null, "testPassword"),
-                new UserRegisterRequest("testUsername", "", "testPassword"),
-                new UserRegisterRequest("testUsername", " ", "testPassword"),
-
-                new UserRegisterRequest("testUsername", "test@mail.com",  null),
-                new UserRegisterRequest("testUsername", "test@mail.com", ""),
-                new UserRegisterRequest("testUsername", "test@mail.com", "   ")
-        );
     }
 
     @Test

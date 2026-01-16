@@ -1,4 +1,8 @@
 package com.bhnatiuk.uni.bookstore.backend.dto;
 
-public record UserLoginRequest(String username, String password) {
+import jakarta.validation.constraints.NotBlank;
+
+public record UserLoginRequest(
+        @NotBlank String username,
+        @NotBlank String password) {
 }

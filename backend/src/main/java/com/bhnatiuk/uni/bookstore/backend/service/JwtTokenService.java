@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public String generateToken(String name) {
+    public String generateToken(@NotBlank String name) {
         return Jwts.builder()
                 .subject(name)
                 .issuedAt(new Date())
@@ -34,7 +35,7 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public boolean isValid(String token) {
+    public boolean isValid(@NotBlank String token) {
         try {
             parseClaims(token);
             return true;
@@ -44,7 +45,15 @@ public class JwtTokenService implements TokenService {
     }
 
     @Override
-    public String getUsername(String token) {
+    public String resolveToken(String header) {
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
+    }
+
+    @Override
+    public String getUsername(@NotBlank String token) {
         return parseClaims(token).getSubject();
     }
 

@@ -7,4 +7,6 @@ public interface TokenService {
     boolean isValid(String trimmedToken);
 
     String getUsername(String token);
+
+    String resolveToken(String header);
 }

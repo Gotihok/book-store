@@ -1,4 +1,8 @@
 package com.bhnatiuk.uni.bookstore.backend.dto;
 
-public record JwtResponse(String jwtToken) {
+import jakarta.validation.constraints.NotBlank;
+
+public record JwtResponse(
+        @NotBlank String jwtToken
+) {
 }
