@@ -1,8 +1,8 @@
 package com.bhnatiuk.uni.bookstore.backend.controller;
 
 import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilter;
-import com.bhnatiuk.uni.bookstore.backend.dto.TokenResponse;
-import com.bhnatiuk.uni.bookstore.backend.dto.UserLoginRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

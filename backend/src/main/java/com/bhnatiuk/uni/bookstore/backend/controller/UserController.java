@@ -1,6 +1,6 @@
 package com.bhnatiuk.uni.bookstore.backend.controller;
 
-import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,23 +1,24 @@
 package com.bhnatiuk.uni.bookstore.backend.service;
 
-import com.bhnatiuk.uni.bookstore.backend.dto.TokenResponse;
-import com.bhnatiuk.uni.bookstore.backend.dto.UserLoginRequest;
-import com.bhnatiuk.uni.bookstore.backend.dto.UserRegisterRequest;
-import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.service.CredentialsAlreadyInUseException;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.service.MalformedEmailException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.api.BadRequestException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.api.ConflictException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.service.CredentialsAlreadyInUseException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.service.MalformedEmailException;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-//TODO: add aspects to map all the exceptions inside the service method
-// to the controller exposure allowed automatically
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -29,8 +30,19 @@ public class AuthServiceImpl implements AuthService {
     private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
 
+    // TODO: create weak password verification
     @Override
     public UserResponse register(@NotNull UserRegisterRequest registerRequest) {
+        try {
+            return createUserInternal(registerRequest);
+        } catch (MalformedEmailException e) {
+            throw new BadRequestException("Invalid registration data", e);
+        } catch (CredentialsAlreadyInUseException e) {
+            throw new ConflictException("Credentials already in use", e);
+        }
+    }
+
+    private UserResponse createUserInternal(UserRegisterRequest registerRequest) {
         if (!registerRequest.email().matches(ALLOWED_EMAIL_PATTERN_REGEX)) {
             throw new MalformedEmailException("Malformed email provided for registration");
         }
@@ -57,6 +69,16 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public TokenResponse login(@NotNull UserLoginRequest loginRequest) {
+        try {
+            return loginUserInternal(loginRequest);
+        } catch (MalformedEmailException e) {
+            throw new BadRequestException("Invalid registration data", e);
+        } catch (CredentialsAlreadyInUseException e) {
+            throw new ConflictException("Credentials already in use", e);
+        }
+    }
+
+    private TokenResponse loginUserInternal(UserLoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password())
         );

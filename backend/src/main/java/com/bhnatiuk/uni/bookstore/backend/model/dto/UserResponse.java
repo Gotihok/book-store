@@ -1,4 +1,4 @@
-package com.bhnatiuk.uni.bookstore.backend.dto;
+package com.bhnatiuk.uni.bookstore.backend.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

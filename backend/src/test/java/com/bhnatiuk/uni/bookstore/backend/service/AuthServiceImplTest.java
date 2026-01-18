@@ -1,13 +1,14 @@
 package com.bhnatiuk.uni.bookstore.backend.service;
 
-import com.bhnatiuk.uni.bookstore.backend.dto.TokenResponse;
-import com.bhnatiuk.uni.bookstore.backend.dto.UserLoginRequest;
-import com.bhnatiuk.uni.bookstore.backend.dto.UserRegisterRequest;
-import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.service.CredentialsAlreadyInUseException;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.service.MalformedEmailException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.api.UnauthorizedException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.service.CredentialsAlreadyInUseException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.service.MalformedEmailException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -177,11 +177,11 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void login_shouldThrowAuthenticationException_whenAuthenticationFails() {
+    void login_shouldThrowUnauthorizedException_whenAuthenticationFails() {
         when(authenticationManager.authenticate(any(Authentication.class)))
                 .thenThrow(UsernameNotFoundException.class);
 
-        assertThrows(AuthenticationException.class, () -> authServiceImpl.login(loginRequest));
+        assertThrows(UnauthorizedException.class, () -> authServiceImpl.login(loginRequest));
         verify(tokenService, never()).generateToken(any());
     }
 }
