@@ -1,6 +1,6 @@
 package com.bhnatiuk.uni.bookstore.backend.config.security;
 
-import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
+import com.bhnatiuk.uni.bookstore.backend.model.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

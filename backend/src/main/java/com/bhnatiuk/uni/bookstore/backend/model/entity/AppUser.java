@@ -1,4 +1,4 @@
-package com.bhnatiuk.uni.bookstore.backend.entity;
+package com.bhnatiuk.uni.bookstore.backend.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

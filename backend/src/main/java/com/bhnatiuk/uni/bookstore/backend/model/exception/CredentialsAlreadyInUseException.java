@@ -1,4 +1,4 @@
-package com.bhnatiuk.uni.bookstore.backend.model.exception.service;
+package com.bhnatiuk.uni.bookstore.backend.model.exception;
 
 public class CredentialsAlreadyInUseException extends RuntimeException {
     public CredentialsAlreadyInUseException(String message) {
