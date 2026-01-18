@@ -16,12 +16,16 @@ import java.util.Date;
 public class JwtTokenService implements TokenService {
     private final SecretKey key;
     private final long expiration;
+    private final String type;
 
     public JwtTokenService(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration}") long expiration) {
+            @Value("${jwt.expiration}") long expiration,
+            @Value("${jwt.type}") String type
+            ) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expiration = expiration;
+        this.type = type;
     }
 
     @Override
@@ -50,6 +54,16 @@ public class JwtTokenService implements TokenService {
             return header.substring(7);
         }
         return null;
+    }
+
+    @Override
+    public long getExpiration() {
+        return expiration;
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
     @Override

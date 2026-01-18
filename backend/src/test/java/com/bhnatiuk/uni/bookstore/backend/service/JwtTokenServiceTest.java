@@ -19,7 +19,8 @@ class JwtTokenServiceTest {
     void setUp() {
         jwtTokenService = new JwtTokenService(
                 "SoMe_VeRy_Secure_Token_For_Tesing_purposes_0987",
-                1000 * 60
+                1000 * 60,
+                "Bearer "
         );
     }
 

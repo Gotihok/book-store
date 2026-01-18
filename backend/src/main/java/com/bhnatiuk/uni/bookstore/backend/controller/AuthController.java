@@ -1,6 +1,6 @@
 package com.bhnatiuk.uni.bookstore.backend.controller;
 
-import com.bhnatiuk.uni.bookstore.backend.dto.JwtResponse;
+import com.bhnatiuk.uni.bookstore.backend.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
@@ -26,7 +26,7 @@ public class AuthController {
     }
 
     @PostMapping("/api/auth/login")
-    public ResponseEntity<JwtResponse> login(@Valid @RequestBody UserLoginRequest loginRequest) {
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody UserLoginRequest loginRequest) {
         return ResponseEntity.ok(
                 authService.login(loginRequest)
         );

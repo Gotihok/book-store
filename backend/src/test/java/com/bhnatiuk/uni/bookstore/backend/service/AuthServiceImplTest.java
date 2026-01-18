@@ -1,14 +1,13 @@
 package com.bhnatiuk.uni.bookstore.backend.service;
 
-import com.bhnatiuk.uni.bookstore.backend.dto.JwtResponse;
+import com.bhnatiuk.uni.bookstore.backend.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.CredentialsAlreadyInUseException;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.LoginFailedException;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.MalformedEmailException;
+import com.bhnatiuk.uni.bookstore.backend.util.exception.service.CredentialsAlreadyInUseException;
+import com.bhnatiuk.uni.bookstore.backend.util.exception.service.MalformedEmailException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -151,15 +151,24 @@ class AuthServiceImplTest {
     void login_shouldAuthenticateUser_whenCorrectCredentials() {
         //given
         Authentication authentication = mock(Authentication.class);
+        TokenResponse expectedTokenResponse = new TokenResponse(
+                "test.jwt.token",
+                "Bearer ",
+                1000 * 60
+        );
 
         when(authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
         when(authentication.getName()).thenReturn("testUsername");
-        when(tokenService.generateToken("testUsername")).thenReturn("test.jwt.token");
+        when(tokenService.generateToken("testUsername")).thenReturn(expectedTokenResponse.jwtToken());
+        when(tokenService.getType()).thenReturn(expectedTokenResponse.tokenType());
+        when(tokenService.getExpiration()).thenReturn(expectedTokenResponse.expiresIn());
 
-        JwtResponse jwtResponse = authServiceImpl.login(loginRequest);
+        TokenResponse actualTokenResponse = authServiceImpl.login(loginRequest);
 
-        assertNotNull(jwtResponse);
-        assertEquals("test.jwt.token", jwtResponse.jwtToken());
+        assertNotNull(actualTokenResponse);
+        assertEquals(expectedTokenResponse.jwtToken(), actualTokenResponse.jwtToken());
+        assertEquals(expectedTokenResponse.tokenType(), actualTokenResponse.tokenType());
+        assertEquals(expectedTokenResponse.expiresIn(), actualTokenResponse.expiresIn());
 
         verify(authenticationManager).authenticate(
                 new UsernamePasswordAuthenticationToken("testUsername", "testPassword")
@@ -168,11 +177,11 @@ class AuthServiceImplTest {
     }
 
     @Test
-    void login_shouldThrowLoginFailedException_whenUserAuthenticationFails() {
+    void login_shouldThrowAuthenticationException_whenAuthenticationFails() {
         when(authenticationManager.authenticate(any(Authentication.class)))
                 .thenThrow(UsernameNotFoundException.class);
 
-        assertThrows(LoginFailedException.class, () -> authServiceImpl.login(loginRequest));
+        assertThrows(AuthenticationException.class, () -> authServiceImpl.login(loginRequest));
         verify(tokenService, never()).generateToken(any());
     }
 }

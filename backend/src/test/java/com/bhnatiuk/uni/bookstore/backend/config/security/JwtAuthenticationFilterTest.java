@@ -1,4 +1,4 @@
-package com.bhnatiuk.uni.bookstore.backend.config;
+package com.bhnatiuk.uni.bookstore.backend.config.security;
 
 import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.service.TokenService;

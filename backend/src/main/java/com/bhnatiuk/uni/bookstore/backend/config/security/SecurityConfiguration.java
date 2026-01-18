@@ -1,4 +1,4 @@
-package com.bhnatiuk.uni.bookstore.backend.config;
+package com.bhnatiuk.uni.bookstore.backend.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

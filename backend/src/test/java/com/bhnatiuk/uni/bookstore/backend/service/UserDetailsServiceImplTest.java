@@ -2,7 +2,7 @@ package com.bhnatiuk.uni.bookstore.backend.service;
 
 import com.bhnatiuk.uni.bookstore.backend.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.NotFoundException;
+import com.bhnatiuk.uni.bookstore.backend.util.exception.controller.NotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

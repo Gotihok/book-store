@@ -1,7 +1,7 @@
 package com.bhnatiuk.uni.bookstore.backend.service;
 
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
-import com.bhnatiuk.uni.bookstore.backend.util.exception.NotFoundException;
+import com.bhnatiuk.uni.bookstore.backend.util.exception.controller.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.userdetails.UserDetails;

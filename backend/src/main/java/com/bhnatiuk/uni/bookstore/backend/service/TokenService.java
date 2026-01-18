@@ -9,4 +9,8 @@ public interface TokenService {
     String getUsername(String token);
 
     String resolveToken(String header);
+
+    long getExpiration();
+
+    String getType();
 }
