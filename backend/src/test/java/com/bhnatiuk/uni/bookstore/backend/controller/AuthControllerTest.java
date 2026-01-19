@@ -3,6 +3,8 @@ package com.bhnatiuk.uni.bookstore.backend.controller;
 import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilter;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
     public static final String LOGIN_PATH = "/api/auth/login";
+    public static final String REGISTER_PATH = "/api/auth/register";
     @Autowired
     MockMvc mockMvc;
 
@@ -41,7 +44,21 @@ class AuthControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void register() {
+    void register() throws Exception {
+        // given
+        UserRegisterRequest loginRequest =
+                new UserRegisterRequest("testUser", "invalidEmail", "testPassword");
+
+        UserResponse expectedResponse =
+                new UserResponse(1L, "testUser", "invalidEmail");
+
+        when(authService.register(any(UserRegisterRequest.class))).thenReturn(expectedResponse);
+
+        // when + then
+        mockMvc.perform(post(REGISTER_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -66,5 +83,6 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_shouldReturnUnauthorized_whenLoginFailed() {}
+    void login_shouldReturnUnauthorized_whenLoginFailed() throws Exception {
+    }
 }

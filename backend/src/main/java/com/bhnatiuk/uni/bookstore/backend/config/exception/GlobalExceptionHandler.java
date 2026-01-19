@@ -5,31 +5,32 @@ import com.bhnatiuk.uni.bookstore.backend.model.exception.CredentialsAlreadyInUs
 import com.bhnatiuk.uni.bookstore.backend.model.exception.MalformedEmailException;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ExitCodeExceptionMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.util.HtmlUtils;
 
 import java.util.Map;
 
+//TODO: test the class
+@Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
-    private static final Map<Class<? extends RuntimeException>, HttpStatus> EXCEPTION_MAPPING =
-            Map.of(
-                    MalformedEmailException.class, HttpStatus.BAD_REQUEST,
-                    CredentialsAlreadyInUseException.class, HttpStatus.CONFLICT,
-                    NotFoundException.class, HttpStatus.NOT_FOUND,
-                    AuthenticationException.class, HttpStatus.UNAUTHORIZED
-            );
+    private final ExceptionMapper<HttpStatus> exceptionMapper;
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<AppErrorResponse> handleApiException(
-            RuntimeException e,
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<AppErrorResponse> handleGlobalException(
+            Exception e,
             HttpServletRequest request) {
 
-        HttpStatus status = mapRequest(e);
+        HttpStatus status = exceptionMapper.map(e);
 
         AppErrorResponse response = new AppErrorResponse(
                 status.value(),
@@ -38,9 +39,5 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(status).body(response);
-    }
-
-    private HttpStatus mapRequest(RuntimeException e) {
-        return EXCEPTION_MAPPING.getOrDefault(e.getClass(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
