@@ -12,6 +12,7 @@ public record UserRegisterRequest(
         @Email(regexp = ALLOWED_EMAIL_PATTERN_REGEX)
         String email,
 
+        // TODO: create weak password verification
         @NotBlank
         String password
 

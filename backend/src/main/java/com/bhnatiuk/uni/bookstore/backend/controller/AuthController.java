@@ -4,25 +4,39 @@ import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping("/api/auth/register")
+    @PostMapping(
+            value = "/api/auth/register",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegisterRequest registerRequest) {
-        //TODO: change status to created with redirect URL issuing
-        return ResponseEntity.ok(
-                authService.register(registerRequest)
-        );
+        AppUser savedUser = authService.register(registerRequest);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/api/users/{id}")
+                .buildAndExpand(savedUser.getId())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .body(UserResponse.from(savedUser));
     }
 
     @PostMapping("/api/auth/login")

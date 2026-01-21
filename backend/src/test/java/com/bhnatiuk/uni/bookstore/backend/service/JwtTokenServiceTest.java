@@ -64,7 +64,7 @@ class JwtTokenServiceTest {
         assertNull(jwtTokenService.resolveToken(header));
     }
 
-    public static Stream<Arguments> invalidHeadersProvider() {
+    static Stream<Arguments> invalidHeadersProvider() {
         return Stream.of(
                 Arguments.of(" "),
                 Arguments.of("   "),

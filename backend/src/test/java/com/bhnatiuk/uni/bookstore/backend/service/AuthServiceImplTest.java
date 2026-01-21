@@ -3,16 +3,12 @@ package com.bhnatiuk.uni.bookstore.backend.service;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
-import com.bhnatiuk.uni.bookstore.backend.model.dto.UserResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.CredentialsAlreadyInUseException;
-import com.bhnatiuk.uni.bookstore.backend.model.exception.MalformedEmailException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -46,7 +42,7 @@ class AuthServiceImplTest {
     private AuthServiceImpl authServiceImpl;
 
     private UserRegisterRequest registerRequest;
-    private UserResponse expectedResponse;
+    private AppUser expectedSavedUser;
 
     private UserLoginRequest loginRequest;
 
@@ -55,8 +51,8 @@ class AuthServiceImplTest {
         registerRequest = new UserRegisterRequest(
                 "testUsername", "test@mail.com", "testPassword"
         );
-        expectedResponse = new UserResponse(
-                1L, "testUsername", "test@mail.com"
+        expectedSavedUser = new AppUser(
+                1L, "testUsername", "test@mail.com",  "encodedPassword"
         );
 
         loginRequest = new UserLoginRequest(
@@ -74,74 +70,32 @@ class AuthServiceImplTest {
                     return user;
                 });
 
-        when(userRepository.existsByEmail("test@mail.com"))
-                .thenReturn(false);
-        when(userRepository.existsByUsername("testUsername"))
+        when(userRepository.existsByEmailOrUsername(any(String.class), any(String.class)))
                 .thenReturn(false);
 
-        when(passwordEncoder.encode("testPassword"))
-                .thenReturn("encodedPassword");
+        when(passwordEncoder.encode(registerRequest.password()))
+                .thenReturn(expectedSavedUser.getPassword());
 
         // when
-        UserResponse actualResponse = authServiceImpl.register(registerRequest);
+        AppUser savedUserResponse = authServiceImpl.register(registerRequest);
 
         // then
-        assertEquals(expectedResponse, actualResponse);
+        assertEquals(expectedSavedUser, savedUserResponse);
 
         ArgumentCaptor<AppUser> userCaptor = ArgumentCaptor.forClass(AppUser.class);
         verify(userRepository).save(userCaptor.capture());
 
-        AppUser savedUser = userCaptor.getValue();
-        assertNotNull(savedUser);
-        assertEquals(1L, savedUser.getId());
-        assertEquals("testUsername", savedUser.getUsername());
-        assertEquals("test@mail.com", savedUser.getEmail());
-        assertEquals("encodedPassword", savedUser.getPassword());
+        AppUser actualSavedUser = userCaptor.getValue();
+        assertEquals(expectedSavedUser, actualSavedUser);
     }
 
     @Test
-    void register_shouldThrowCredentialsException_whenEmailAlreadyInUse() {
-        when(userRepository.existsByEmail("test@mail.com"))
+    void register_shouldThrowCredentialsException_whenEmailOrUsernameAlreadyInUse() {
+        when(userRepository.existsByEmailOrUsername(any(String.class), any(String.class)))
                 .thenReturn(true);
 
         assertThrows(
                 CredentialsAlreadyInUseException.class,
-                () -> authServiceImpl.register(registerRequest)
-        );
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    void register_shouldThrowCredentialsException_whenUsernameAlreadyInUse() {
-        when(userRepository.existsByUsername("testUsername"))
-                .thenReturn(true);
-
-        assertThrows(
-                CredentialsAlreadyInUseException.class,
-                () -> authServiceImpl.register(registerRequest)
-        );
-        verify(userRepository, never()).save(any());
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "whitespaces in username1@mail.com",
-            "whitespacesInUsername2 @mail.com",
-            "username@whitespace in domain1.com",
-            "username@mail.whitespace in domain2",
-            "username@mail. whitespaceInDomain3",
-            "missingDomain",
-            "@missingusername.com",
-            "missingDomain@.com",
-            "missingAtSign.com"
-    })
-    void register_shouldThrowMalformedEmailException_whenEmailIsMalformed(String email) {
-        registerRequest = new UserRegisterRequest(
-                "testUsername", email, "testPassword"
-        );
-
-        assertThrows(
-                MalformedEmailException.class,
                 () -> authServiceImpl.register(registerRequest)
         );
         verify(userRepository, never()).save(any());

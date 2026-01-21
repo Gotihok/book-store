@@ -1,27 +1,35 @@
 package com.bhnatiuk.uni.bookstore.backend.controller;
 
+import com.bhnatiuk.uni.bookstore.backend.config.exception.GlobalExceptionHandler;
 import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilter;
-import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
-import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
-import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
-import com.bhnatiuk.uni.bookstore.backend.model.dto.UserResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.*;
+import com.bhnatiuk.uni.bookstore.backend.model.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import tools.jackson.databind.ObjectMapper;
+
+import java.util.stream.Stream;
+
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(
         controllers = AuthController.class,
@@ -40,30 +48,92 @@ class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    @MockitoBean
+    private GlobalExceptionHandler globalExceptionHandler;
+
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    void register() throws Exception {
-        // given
-        UserRegisterRequest loginRequest =
-                new UserRegisterRequest("testUser", "invalidEmail", "testPassword");
+    private <T> void testInvalidDtoRequest(T request, String requestPath) throws Exception {
+        AppErrorResponse expectedResponse =
+                new AppErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Dto Validation Failed",
+                        requestPath
+                );
 
-        UserResponse expectedResponse =
-                new UserResponse(1L, "testUser", "invalidEmail");
+        when(globalExceptionHandler.handleGlobalException(
+                any(MethodArgumentNotValidException.class),
+                any(HttpServletRequest.class)
+        )).thenReturn(ResponseEntity.badRequest().body(expectedResponse));
 
-        when(authService.register(any(UserRegisterRequest.class))).thenReturn(expectedResponse);
-
-        // when + then
-        mockMvc.perform(post(REGISTER_PATH)
+        mockMvc.perform(post(requestPath)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isBadRequest());
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(jsonPath("$.message").value("Dto Validation Failed"))
+                .andExpect(jsonPath("$.path").value(requestPath));
     }
 
     @Test
-    void login_shouldReturnOkJwtResponse_whenLoginSuccessful() throws Exception {
-        // given
+    void register_shouldReturnOkResponse_whenValidRequest() throws Exception {
+        UserRegisterRequest request =
+                new UserRegisterRequest("testUsername", "example@mail.com", "password");
+
+        AppUser savedUser =
+                new AppUser(1L, "testUsername", "example@mail.com", "encoded");
+
+        when(authService.register(request)).thenReturn(savedUser);
+
+        mockMvc.perform(post(REGISTER_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "http://localhost/api/users/1"))
+                .andExpect(jsonPath("$.id").value(savedUser.getId()))
+                .andExpect(jsonPath("$.username").value(savedUser.getUsername()))
+                .andExpect(jsonPath("$.email").value(savedUser.getEmail()));
+
+        verify(authService).register(any(UserRegisterRequest.class));
+    }
+
+    static Stream<UserRegisterRequest> invalidRegisterRequestProvider() {
+        return Stream.of(
+                new UserRegisterRequest(null, "valid@mail.com", "validPassword"),
+                new UserRegisterRequest("", "valid@mail.com", "validPassword"),
+                new UserRegisterRequest(" ", "valid@mail.com", "validPassword"),
+                new UserRegisterRequest("  ", "valid@mail.com", "validPassword"),
+
+                new UserRegisterRequest("ValidUsername", null, "validPassword"),
+                new UserRegisterRequest("ValidUsername", "", "validPassword"),
+                new UserRegisterRequest("ValidUsername", " ", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "  ", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "whitespaces in username1@mail.com", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "whitespacesInUsername2 @mail.com", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "username@whitespace in domain1.com", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "username@mail.whitespace in domain2", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "username@mail. whitespaceInDomain3", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "missingDomain", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "@missingusername.com", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "missingDomain@.com", "validPassword"),
+                new UserRegisterRequest("ValidUsername", "missingAtSign.com", "validPassword"),
+
+                new UserRegisterRequest("ValidUsername", "valid@mail.com", null),
+                new UserRegisterRequest("ValidUsername", "valid@mail.com", ""),
+                new UserRegisterRequest("ValidUsername", "valid@mail.com", " "),
+                new UserRegisterRequest("ValidUsername", "valid@mail.com", "  ")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidRegisterRequestProvider")
+    void register_shouldReturnBadRequest_whenDtoIsNotValid(UserRegisterRequest registerRequest) throws Exception {
+        testInvalidDtoRequest(registerRequest, REGISTER_PATH);
+    }
+
+    @Test
+    void login_shouldReturnOkJwtResponse_whenValidRequest() throws Exception {
         UserLoginRequest loginRequest =
                 new UserLoginRequest("testUser", "testPassword");
 
@@ -72,7 +142,6 @@ class AuthControllerTest {
 
         when(authService.login(any(UserLoginRequest.class))).thenReturn(expectedResponse);
 
-        // when + then
         mockMvc.perform(post(LOGIN_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
@@ -82,7 +151,23 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.expiresIn").value(expectedResponse.expiresIn()));
     }
 
-    @Test
-    void login_shouldReturnUnauthorized_whenLoginFailed() throws Exception {
+    static Stream<UserLoginRequest> invalidLoginRequestProvider() {
+        return Stream.of(
+                new UserLoginRequest(null, "validPassword"),
+                new UserLoginRequest("", "validPassword"),
+                new UserLoginRequest(" ", "validPassword"),
+                new UserLoginRequest("  ", "validPassword"),
+                new UserLoginRequest("validUsername", null),
+                new UserLoginRequest("validUsername", ""),
+                new UserLoginRequest("validUsername", " "),
+                new UserLoginRequest("validUsername", "  "),
+                new UserLoginRequest(null, null)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("invalidLoginRequestProvider")
+    void login_shouldReturnBadRequest_whenDtoValidationFails(UserLoginRequest request) throws Exception {
+        testInvalidDtoRequest(request, LOGIN_PATH);
     }
 }
