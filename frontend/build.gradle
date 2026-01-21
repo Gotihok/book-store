@@ -1,0 +1,18 @@
+plugins {
+  id("com.github.node-gradle.node") version "7.0.2"
+}
+
+node {
+  version = "22.22.0"
+  npmVersion = "11.7.0"
+  download = true
+}
+
+tasks.register('build') {
+  dependsOn 'npm_run_build'
+}
+
+tasks.register('start') {
+  dependsOn 'npm_run_start'
+}
+

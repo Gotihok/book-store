@@ -6,7 +6,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      - book-store-net
+      - postgres-net
     depends_on:
       - postgres
     environment:
@@ -17,6 +17,15 @@ services:
       JWT_EXPIRATION: ${JWT_EXPIRATION}
       JWT_TYPE: ${JWT_TYPE}
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    networks:
+      - frontend-net
+
   postgres:
     container_name: "postgres_db"
     image: 'postgres:18.1'
@@ -24,7 +33,7 @@ services:
     ports:
       - '5433:5432'
     networks:
-      - book-store-net
+      - postgres-net
     environment:
       POSTGRES_DB: book-store-postgres
       POSTGRES_USER: ${POSTGRES_USER}
@@ -36,5 +45,8 @@ volumes:
   postgres-vol:
 
 networks:
-  book-store-net:
+  postgres-net:
+    driver: bridge
+
+  frontend-net:
     driver: bridge
