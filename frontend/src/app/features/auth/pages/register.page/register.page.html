@@ -1,0 +1,60 @@
+<form
+  [formGroup]="registerForm"
+  (ngSubmit)="onSubmit()"
+  class="registration-form"
+>
+  <h2>Register</h2>
+
+  <app-form-field
+    label="Username"
+    inputId="username"
+    placeholder="Enter username"
+    [control]="registerForm.controls.username"
+    errorMessage="Username is required (min 3 characters)"
+  />
+
+  <app-form-field
+    label="Email"
+    inputId="email"
+    type="email"
+    placeholder="Enter email"
+    [control]="registerForm.controls.email"
+    errorMessage="Please enter a valid email"
+  />
+
+  <app-form-field
+    label="Password"
+    inputId="password"
+    type="password"
+    placeholder="Enter password"
+    [control]="registerForm.controls.password"
+    errorMessage="Password must be at least 6 characters"
+  />
+
+  <app-form-field
+    label="Confirm Password"
+    inputId="confirmPassword"
+    type="password"
+    placeholder="Confirm password"
+    [control]="registerForm.controls.confirmPassword"
+    errorMessage="Confirmation is required"
+  />
+
+  <!-- Terms (checkbox stays inline — different control type) -->
+  <div class="form-group checkbox">
+    <label>
+      <input type="checkbox" formControlName="terms" />
+      I agree to the terms and conditions
+    </label>
+
+    @if (registerForm.controls.terms.touched && registerForm.controls.terms.invalid) {
+      <small>
+        You must accept the terms
+      </small>
+    }
+  </div>
+
+  <button type="submit" [disabled]="registerForm.invalid || isSubmitting">
+    Register
+  </button>
+</form>

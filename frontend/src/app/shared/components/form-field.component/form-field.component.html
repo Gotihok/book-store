@@ -1,0 +1,16 @@
+<div class="form-group">
+  <label [for]="inputId">{{ label }}</label>
+
+  <input
+    [id]="inputId"
+    [type]="type"
+    [formControl]="control"
+    [placeholder]="placeholder"
+  />
+
+  @if (showError) {
+    <small>
+      {{ errorMessage }}
+    </small>
+  }
+</div>
