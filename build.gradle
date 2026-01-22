@@ -1,0 +1,5 @@
+tasks.register('buildAll') {
+    group = 'build'
+    description = 'Builds all subprojects'
+    dependsOn subprojects.collect { it.tasks.named('build') }
+}
