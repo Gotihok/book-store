@@ -6,6 +6,7 @@ import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.CredentialsAlreadyInUseException;
 import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,8 +24,9 @@ public class AuthServiceImpl implements AuthService {
     private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
 
+    @Transactional
     @Override
-    public AppUser register(@NotNull UserRegisterRequest registerRequest) {
+    public TokenResponse register(@NotNull UserRegisterRequest registerRequest) {
         if (userRepository.existsByEmailOrUsername(
                 registerRequest.email(), registerRequest.username()
         )) {
@@ -36,15 +38,30 @@ public class AuthServiceImpl implements AuthService {
         appUser.setEmail(registerRequest.email());
         appUser.setPassword(passwordEncoder.encode(registerRequest.password()));
 
-        return userRepository.save(appUser);
+        userRepository.save(appUser);
+
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        registerRequest.username(),
+                        registerRequest.password()
+                ));
+
+        return buildTokenResponse(authentication);
     }
 
+    @Transactional
     @Override
     public TokenResponse login(@NotNull UserLoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password())
-        );
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.username(),
+                        loginRequest.password()
+                ));
 
+        return buildTokenResponse(authentication);
+    }
+
+    private TokenResponse buildTokenResponse(Authentication authentication) {
         return new TokenResponse(
                 tokenService.generateToken(authentication.getName()),
                 tokenService.getType(),

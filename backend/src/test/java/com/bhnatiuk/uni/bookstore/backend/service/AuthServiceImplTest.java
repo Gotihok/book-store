@@ -4,8 +4,8 @@ import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.AppUser;
-import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.CredentialsAlreadyInUseException;
+import com.bhnatiuk.uni.bookstore.backend.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,11 +76,24 @@ class AuthServiceImplTest {
         when(passwordEncoder.encode(registerRequest.password()))
                 .thenReturn(expectedSavedUser.getPassword());
 
+        Authentication authentication = mock(Authentication.class);
+        TokenResponse expectedTokenResponse = new TokenResponse(
+                "test.jwt.token",
+                "Bearer ",
+                1000 * 60
+        );
+
+        when(authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
+        when(authentication.getName()).thenReturn("testUsername");
+        when(tokenService.generateToken("testUsername")).thenReturn(expectedTokenResponse.jwtToken());
+        when(tokenService.getType()).thenReturn(expectedTokenResponse.tokenType());
+        when(tokenService.getExpiration()).thenReturn(expectedTokenResponse.expiresIn());
+
         // when
-        AppUser savedUserResponse = authServiceImpl.register(registerRequest);
+        TokenResponse actualTokenResponse = authServiceImpl.register(registerRequest);
 
         // then
-        assertEquals(expectedSavedUser, savedUserResponse);
+        assertEquals(expectedTokenResponse, actualTokenResponse);
 
         ArgumentCaptor<AppUser> userCaptor = ArgumentCaptor.forClass(AppUser.class);
         verify(userRepository).save(userCaptor.capture());

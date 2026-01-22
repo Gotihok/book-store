@@ -2,10 +2,13 @@ package com.bhnatiuk.uni.bookstore.backend.model.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 public record UserRegisterRequest(
 
+        //TODO: test dto validation
         @NotBlank
+        @Pattern(regexp = "^[a-zA-Z0-9._-]+$")
         String username,
 
         @NotBlank

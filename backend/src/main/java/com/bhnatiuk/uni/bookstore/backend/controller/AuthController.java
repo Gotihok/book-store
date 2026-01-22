@@ -3,8 +3,6 @@ package com.bhnatiuk.uni.bookstore.backend.controller;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
-import com.bhnatiuk.uni.bookstore.backend.model.dto.UserResponse;
-import com.bhnatiuk.uni.bookstore.backend.model.entity.AppUser;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,17 +24,16 @@ public class AuthController {
             value = "/api/auth/register",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<UserResponse> register(@Valid @RequestBody UserRegisterRequest registerRequest) {
-        AppUser savedUser = authService.register(registerRequest);
+    public ResponseEntity<TokenResponse> register(@Valid @RequestBody UserRegisterRequest registerRequest) {
+        TokenResponse tokenResponse = authService.register(registerRequest);
+
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
-                .path("/api/users/{id}")
-                .buildAndExpand(savedUser.getId())
+                .path("/api/auth/me")
+                .build()
                 .toUri();
 
-        return ResponseEntity
-                .created(location)
-                .body(UserResponse.from(savedUser));
+        return ResponseEntity.created(location).body(tokenResponse);
     }
 
     @PostMapping("/api/auth/login")

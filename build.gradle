@@ -3,3 +3,18 @@ tasks.register('buildAll') {
     description = 'Builds all subprojects'
     dependsOn subprojects.collect { it.tasks.named('build') }
 }
+
+def registerBuildGroupTask = { String taskName, String moduleKeyword ->
+    tasks.register(taskName) {
+        group = 'build'
+        description = "Builds all ${moduleKeyword} subprojects"
+
+        dependsOn(subprojects
+                .findAll { it.name.contains(moduleKeyword) }
+                .collect { it.tasks.named('build') }
+        )
+    }
+}
+
+registerBuildGroupTask('buildBackend', 'backend')
+registerBuildGroupTask('buildFrontend', 'frontend')

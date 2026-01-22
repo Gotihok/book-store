@@ -2,8 +2,10 @@ package com.bhnatiuk.uni.bookstore.backend.controller;
 
 import com.bhnatiuk.uni.bookstore.backend.config.exception.GlobalExceptionHandler;
 import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilter;
-import com.bhnatiuk.uni.bookstore.backend.model.dto.*;
-import com.bhnatiuk.uni.bookstore.backend.model.entity.AppUser;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.AppErrorResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
@@ -24,11 +26,10 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.stream.Stream;
 
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(
@@ -81,19 +82,19 @@ class AuthControllerTest {
         UserRegisterRequest request =
                 new UserRegisterRequest("testUsername", "example@mail.com", "password");
 
-        AppUser savedUser =
-                new AppUser(1L, "testUsername", "example@mail.com", "encoded");
+        TokenResponse expectedResponse =
+                new TokenResponse("test.jwt.token", "Bearer ", 1000 * 60);
 
-        when(authService.register(request)).thenReturn(savedUser);
+        when(authService.register(request)).thenReturn(expectedResponse);
 
         mockMvc.perform(post(REGISTER_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "http://localhost/api/users/1"))
-                .andExpect(jsonPath("$.id").value(savedUser.getId()))
-                .andExpect(jsonPath("$.username").value(savedUser.getUsername()))
-                .andExpect(jsonPath("$.email").value(savedUser.getEmail()));
+                .andExpect(header().string("Location", "http://localhost/api/auth/me"))
+                .andExpect(jsonPath("$.jwtToken").value(expectedResponse.jwtToken()))
+                .andExpect(jsonPath("$.tokenType").value(expectedResponse.tokenType()))
+                .andExpect(jsonPath("$.expiresIn").value(expectedResponse.expiresIn()));
 
         verify(authService).register(any(UserRegisterRequest.class));
     }
