@@ -25,15 +25,17 @@ public class AuthController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<TokenResponse> register(@Valid @RequestBody UserRegisterRequest registerRequest) {
-        TokenResponse tokenResponse = authService.register(registerRequest);
+//        TokenResponse tokenResponse = authService.register(registerRequest);
+//
+//        URI location = ServletUriComponentsBuilder
+//                .fromCurrentContextPath()
+//                .path("/api/auth/me")
+//                .build()
+//                .toUri();
 
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentContextPath()
-                .path("/api/auth/me")
-                .build()
-                .toUri();
-
-        return ResponseEntity.created(location).body(tokenResponse);
+        return ResponseEntity.ok(
+                authService.register(registerRequest)
+        );
     }
 
     @PostMapping("/api/auth/login")

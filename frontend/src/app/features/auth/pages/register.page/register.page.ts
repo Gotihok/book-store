@@ -7,8 +7,9 @@ import {
   NonNullableFormBuilder,
 } from '@angular/forms';
 import {FormFieldComponent} from '../../../../shared/components/form-field.component/form-field.component';
-import {RegisterRequest} from '../../models/register-request';
+import {RegisterRequest} from '../../api/register-request';
 import {AuthService} from '../../services/auth.service';
+import {Router} from '@angular/router';
 
 export type RegisterFormModel = {
   username: FormControl<string>;
@@ -31,7 +32,8 @@ export class RegisterPage {
 
   constructor(
     private fb: NonNullableFormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
@@ -61,17 +63,13 @@ export class RegisterPage {
 
     // Call backend via AuthService
     this.authService.register(payload).subscribe({
-      next: (response) => {
-        console.log('Registration successful:', response);
-        // TODO: redirect to login or dashboard
+      next: () => {
+        this.router.navigate(['/users']);
       },
       error: (err) => {
-        console.error('Registration failed:', err);
-        // TODO: show error message in UI
-      },
-      complete: () => {
+        console.error(err);
         this.isSubmitting = false;
-      },
+      }
     });
   }
 }

@@ -90,8 +90,7 @@ class AuthControllerTest {
         mockMvc.perform(post(REGISTER_PATH)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "http://localhost/api/auth/me"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.jwtToken").value(expectedResponse.jwtToken()))
                 .andExpect(jsonPath("$.tokenType").value(expectedResponse.tokenType()))
                 .andExpect(jsonPath("$.expiresIn").value(expectedResponse.expiresIn()));

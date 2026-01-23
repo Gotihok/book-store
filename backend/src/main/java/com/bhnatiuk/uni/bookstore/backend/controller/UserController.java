@@ -20,4 +20,9 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
+
+    @GetMapping("/api/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("test response");
+    }
 }
