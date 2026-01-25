@@ -4,6 +4,7 @@ import {Observable, tap} from 'rxjs';
 import {RegisterRequest} from '../api/register-request';
 import {TokenResponse} from '../api/token-response';
 import {LoginRequest} from '../api/login-request';
+import {LoggerService} from '../../../shared/services/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +16,10 @@ export class AuthService {
   //TODO: make env config for base url
   private readonly apiUrl = 'http://localhost:8080/api/auth';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private logger: LoggerService
+  ) {}
 
   register(request: RegisterRequest): Observable<TokenResponse> {
     return this.http
@@ -30,23 +34,26 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.EXPIRES_AT_KEY);
+    sessionStorage.removeItem(this.TOKEN_KEY);
+    sessionStorage.removeItem(this.EXPIRES_AT_KEY);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
+    this.logger.log("Retrieving token form AuthService: " + sessionStorage.getItem(this.TOKEN_KEY));
+    return sessionStorage.getItem(this.TOKEN_KEY);
   }
 
   isAuthenticated(): boolean {
-    const expiresAt = localStorage.getItem(this.EXPIRES_AT_KEY);
+    const expiresAt = sessionStorage.getItem(this.EXPIRES_AT_KEY);
     return !!expiresAt && Date.now() < Number(expiresAt);
   }
 
   private storeToken(tokenResponse: TokenResponse): void {
-    localStorage.setItem(this.TOKEN_KEY, tokenResponse.token);
+    this.logger.log("Response passed for saving: " + tokenResponse);
+    this.logger.log("Saving token in AuthService: " + tokenResponse.jwtToken);
+    sessionStorage.setItem(this.TOKEN_KEY, tokenResponse.jwtToken);
 
     const expiresAt = Date.now() + tokenResponse.expiresIn;
-    localStorage.setItem(this.EXPIRES_AT_KEY, expiresAt.toString());
+    sessionStorage.setItem(this.EXPIRES_AT_KEY, expiresAt.toString());
   }
 }

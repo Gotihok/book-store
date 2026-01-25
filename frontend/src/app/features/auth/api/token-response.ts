@@ -1,5 +1,5 @@
 export interface TokenResponse {
-  token: string;
+  jwtToken: string;
   tokenType: string;
   expiresIn: number;
 }

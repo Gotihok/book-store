@@ -10,6 +10,7 @@ import {FormFieldComponent} from '../../../../shared/components/form-field.compo
 import {RegisterRequest} from '../../api/register-request';
 import {AuthService} from '../../services/auth.service';
 import {Router} from '@angular/router';
+import {LoggerService} from '../../../../shared/services/logger.service';
 
 export type RegisterFormModel = {
   username: FormControl<string>;
@@ -33,7 +34,8 @@ export class RegisterPage {
   constructor(
     private fb: NonNullableFormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private logger: LoggerService
   ) {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],

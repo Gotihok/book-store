@@ -19,12 +19,17 @@ def registerBuildGroupTask = { String taskName, String moduleKeyword ->
 registerBuildGroupTask('buildBackend', 'backend')
 registerBuildGroupTask('buildFrontend', 'frontend')
 
-tasks.register("devUp", Exec) {
-    dependsOn("buildBackend", "buildFrontend")
-    commandLine "docker", "compose", "down", "--rmi", "\"local\"", "-v"
+tasks.register("dockerDown", Exec) {
+    group = "dev"
+    commandLine "docker", "compose", "down", "--rmi", "local", "-v"
+}
+
+tasks.register("dockerUp", Exec) {
+    group = "dev"
     commandLine "docker", "compose", "up", "-d", "--build"
 }
 
-tasks.register("devDown", Exec) {
-    commandLine "docker", "compose", "down", "--rmi", "\"local\"", "-v"
+tasks.register("devUp") {
+    group = "dev"
+    dependsOn("buildBackend", "buildFrontend", "dockerDown", "dockerUp")
 }

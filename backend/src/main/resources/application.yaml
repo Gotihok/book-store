@@ -13,5 +13,8 @@ spring:
       ddl-auto: validate
 
 logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n"
   level:
     root: debug
+    com.bhnatiuk.uni.bookstore: debug
