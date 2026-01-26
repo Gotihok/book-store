@@ -29,7 +29,7 @@ export type RegisterFormModel = {
 })
 export class RegisterPage {
   protected registerForm: FormGroup<RegisterFormModel>;
-  protected isSubmitting = false;
+  protected isSubmitting: boolean = false;
 
   constructor(
     private fb: NonNullableFormBuilder,
@@ -54,18 +54,16 @@ export class RegisterPage {
 
     this.isSubmitting = true;
 
-    // Prepare payload for backend
-    const { username, email, password } = this.registerForm.getRawValue() as {
+    const payload: RegisterRequest = this.registerForm.getRawValue() as {
       username: string;
       email: string;
       password: string;
     };
 
-    const payload: RegisterRequest = { username, email, password };
-
     // Call backend via AuthService
     this.authService.register(payload).subscribe({
       next: () => {
+        //TODO: make proper navigation
         this.router.navigate(['/users']);
       },
       error: (err) => {

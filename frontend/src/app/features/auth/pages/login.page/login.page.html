@@ -1,1 +1,28 @@
-<p>login.page works!</p>
+<form
+  [formGroup]="loginForm"
+  (ngSubmit)="onSubmit()"
+  class="registration-form"
+>
+  <h2>Login</h2>
+
+  <app-form-field
+    label="Username"
+    inputId="username"
+    placeholder="Enter username"
+    [control]="loginForm.controls.username"
+    errorMessage="Username is required (min 3 characters)"
+  />
+
+  <app-form-field
+    label="Password"
+    inputId="password"
+    type="password"
+    placeholder="Enter password"
+    [control]="loginForm.controls.password"
+    errorMessage="Password must be at least 6 characters"
+  />
+
+  <button type="submit" [disabled]="loginForm.invalid || isSubmitting">
+    Login
+  </button>
+</form>
