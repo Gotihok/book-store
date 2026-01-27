@@ -1,8 +1,10 @@
 package com.bhnatiuk.uni.bookstore.backend.service;
 
+import com.bhnatiuk.uni.bookstore.backend.model.domain.Isbn;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookCreationRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.Book;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.InvalidIsbnException;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
 import com.bhnatiuk.uni.bookstore.backend.repository.BookRepository;
 import jakarta.transaction.Transactional;
@@ -20,19 +22,22 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Book create(BookCreationRequest creationRequest) {
+        //TODO: validate ISBN
+        //TODO: convert ISBN-10 into ISBN-13
+
         Book book = new Book();
         book.setTitle(creationRequest.title());
         book.setAuthor(creationRequest.author());
         book.setPublisher(creationRequest.publisher());
-        book.setISBN(creationRequest.ISBN());
+        book.setIsbn(new Isbn(creationRequest.ISBN()));
 
         return bookRepository.save(book);
     }
 
     @Override
-    public BookResponse getById(Long id) {
+    public BookResponse getByIsbn(Isbn isbn) {
         return BookResponse.from(
-                bookRepository.findById(id)
+                bookRepository.findByIsbn(isbn)
                         .orElseThrow(() -> new NotFoundException("Book not found"))
         );
     }

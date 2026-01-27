@@ -3,6 +3,8 @@ package com.bhnatiuk.uni.bookstore.backend.model.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.Length;
 
 public record BookCreationRequest(
 
@@ -15,8 +17,7 @@ public record BookCreationRequest(
         @NotBlank
         String publisher,
 
-        @Min(1_000_000_000_000L)
-        @Max(9_999_999_999_999L)
-        Long ISBN
+        @Pattern(regexp = "^(\\d{9}[\\dX]|97[89]\\d{10})$")
+        String ISBN
 ) {
 }

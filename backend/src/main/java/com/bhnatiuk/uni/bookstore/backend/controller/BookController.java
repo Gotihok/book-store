@@ -1,5 +1,6 @@
 package com.bhnatiuk.uni.bookstore.backend.controller;
 
+import com.bhnatiuk.uni.bookstore.backend.model.domain.Isbn;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookCreationRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.Book;
@@ -31,10 +32,10 @@ public class BookController {
         return ResponseEntity.created(location).body(BookResponse.from(createdBook));
     }
 
-    @GetMapping("/api/books/{id}")
-    public ResponseEntity<BookResponse> getBookById(@PathVariable Long id) {
+    @GetMapping("/api/books/{isbn}")
+    public ResponseEntity<BookResponse> getBookById(@PathVariable String isbn) {
         return ResponseEntity.ok(
-                bookService.getById(id)
+                bookService.getByIsbn(new Isbn(isbn))
         );
     }
 
