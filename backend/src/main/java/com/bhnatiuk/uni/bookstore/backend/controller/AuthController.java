@@ -11,9 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,14 +22,6 @@ public class AuthController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<TokenResponse> register(@Valid @RequestBody UserRegisterRequest registerRequest) {
-//        TokenResponse tokenResponse = authService.register(registerRequest);
-//
-//        URI location = ServletUriComponentsBuilder
-//                .fromCurrentContextPath()
-//                .path("/api/auth/me")
-//                .build()
-//                .toUri();
-
         return ResponseEntity.ok(
                 authService.register(registerRequest)
         );

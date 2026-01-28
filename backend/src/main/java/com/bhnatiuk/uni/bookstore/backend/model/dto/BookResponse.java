@@ -6,7 +6,7 @@ public record BookResponse(
         String title,
         String author,
         String publisher,
-        String ISBN
+        String isbn
 ) {
     public static BookResponse from(Book bookEntity) {
         return new BookResponse(

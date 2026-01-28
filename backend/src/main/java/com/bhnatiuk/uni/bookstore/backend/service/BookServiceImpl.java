@@ -4,15 +4,14 @@ import com.bhnatiuk.uni.bookstore.backend.model.domain.Isbn;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookCreationRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.Book;
-import com.bhnatiuk.uni.bookstore.backend.model.exception.InvalidIsbnException;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.ResourceAlreadyExistsException;
 import com.bhnatiuk.uni.bookstore.backend.repository.BookRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,16 +21,12 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Book create(BookCreationRequest creationRequest) {
-        //TODO: validate ISBN
-        //TODO: convert ISBN-10 into ISBN-13
+        if (bookRepository.existsByIsbn(new Isbn(creationRequest.ISBN())))
+            throw new ResourceAlreadyExistsException("Current ISBN already exists");
 
-        Book book = new Book();
-        book.setTitle(creationRequest.title());
-        book.setAuthor(creationRequest.author());
-        book.setPublisher(creationRequest.publisher());
-        book.setIsbn(new Isbn(creationRequest.ISBN()));
-
-        return bookRepository.save(book);
+        return bookRepository.save(
+                BookCreationRequest.toEntity(creationRequest)
+        );
     }
 
     @Override
@@ -46,7 +41,7 @@ public class BookServiceImpl implements BookService {
     public List<BookResponse> find(String author, String title) {
         if (author != null && title != null) {
             return bookRepository
-                    .findByAuthorAndTitle(author, title)
+                    .findByAuthorContainingAndTitleContaining(author, title)
                     .stream()
                     .map(BookResponse::from)
                     .toList();
@@ -54,7 +49,7 @@ public class BookServiceImpl implements BookService {
 
         if (author != null) {
             return bookRepository
-                    .findByAuthor(author)
+                    .findByAuthorContaining(author)
                     .stream()
                     .map(BookResponse::from)
                     .toList();
@@ -62,7 +57,7 @@ public class BookServiceImpl implements BookService {
 
         if (title != null) {
             return bookRepository
-                    .findByTitle(title)
+                    .findByTitleContaining(title)
                     .stream()
                     .map(BookResponse::from)
                     .toList();

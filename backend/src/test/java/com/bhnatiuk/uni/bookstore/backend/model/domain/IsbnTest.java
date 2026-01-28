@@ -13,7 +13,8 @@ class IsbnTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "9780306406157",
-            "9781861972712"
+            "9791861972711",
+            "9784876811090",
     })
     void constructor_shouldInstantiate_whenIsbn13IsValid(String isbn13String) {
         Isbn isbnObject = new Isbn(isbn13String);
@@ -46,25 +47,48 @@ class IsbnTest {
     @ValueSource(strings = {
             " ",                    // whitespace only
             "   ",                  // multiple spaces
-            "text_in_isbn",         // letters
+            "text_in_isbn",         // cannot contain letters
             "1234abcd56789",        // mixed letters & digits
             "123-456-789-0123",     // separators not allowed
             "123 456 789 0123",     // spaces not allowed
+            "0000000000000",        // cannot be only zeros
+
             "123456789",            // invalid length (9)
             "123456789012",         // invalid length (12)
             "12345678901234",       // invalid length (14)
-            "0000000000000",        // cannot be only zeros
 
             "9781234567890",        // invalid checksum (x13)
             "978123456789X",        // invalid checksum character (x13)
             "123456788X",           // invalid checksum (x10)
             "12345678X8",           // invalid checksum position (x10)
             "0471958695",           // invalid checksum (x10)
+
+            "4731861972712",        // not an isbn, because of invalid EAN prefix
     })
     void constructor_shouldThrowException_whenIsbnFormatIsInvalid(String isbnString) {
         assertThrows(
                 InvalidIsbnException.class,
                 () -> new Isbn(isbnString)
         );
+    }
+
+    @Test
+    void equals_shouldReturnTrue_whenIsbnValuesAreEqual() {
+        Isbn isbn1 = new Isbn("9780306406157");
+        Isbn isbn2 = new Isbn("9780306406157");
+
+        boolean isEqual = isbn1.equals(isbn2);
+
+        assertTrue(isEqual);
+    }
+
+    @Test
+    void equals_shouldReturnFalse_whenIsbnValuesAreNotEqual() {
+        Isbn isbn1 = new Isbn("9780306406157");
+        Isbn isbn2 = new Isbn("9791861972711");
+
+        boolean isEqual = isbn1.equals(isbn2);
+
+        assertFalse(isEqual);
     }
 }

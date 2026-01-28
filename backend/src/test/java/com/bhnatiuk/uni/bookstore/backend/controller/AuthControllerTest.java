@@ -1,13 +1,12 @@
 package com.bhnatiuk.uni.bookstore.backend.controller;
 
 import com.bhnatiuk.uni.bookstore.backend.config.exception.GlobalExceptionHandler;
+import com.bhnatiuk.uni.bookstore.backend.config.exception.HttpStatusExceptionMapper;
 import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilter;
-import com.bhnatiuk.uni.bookstore.backend.model.dto.AppErrorResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -16,12 +15,11 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.stream.Stream;
@@ -30,7 +28,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
         controllers = AuthController.class,
@@ -39,6 +38,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 classes = {JwtAuthenticationFilter.class}
         )
 )
+@Import({
+        GlobalExceptionHandler.class,
+        HttpStatusExceptionMapper.class
+})
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
     public static final String LOGIN_PATH = "/api/auth/login";
@@ -49,31 +52,19 @@ class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
-    @MockitoBean
+    @Autowired
     private GlobalExceptionHandler globalExceptionHandler;
 
     @Autowired
     private ObjectMapper objectMapper;
 
     private <T> void testInvalidDtoRequest(T request, String requestPath) throws Exception {
-        AppErrorResponse expectedResponse =
-                new AppErrorResponse(
-                        HttpStatus.BAD_REQUEST.value(),
-                        "Dto Validation Failed",
-                        requestPath
-                );
-
-        when(globalExceptionHandler.handleGlobalException(
-                any(MethodArgumentNotValidException.class),
-                any(HttpServletRequest.class)
-        )).thenReturn(ResponseEntity.badRequest().body(expectedResponse));
-
         mockMvc.perform(post(requestPath)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("Dto Validation Failed"))
+                .andExpect(jsonPath("$.message").isNotEmpty())
                 .andExpect(jsonPath("$.path").value(requestPath));
     }
 

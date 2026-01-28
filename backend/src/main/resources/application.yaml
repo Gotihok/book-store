@@ -7,7 +7,6 @@ spring:
     username: ${db-user}
     password: ${db-password}
 
-
   jpa:
     hibernate:
       ddl-auto: validate
