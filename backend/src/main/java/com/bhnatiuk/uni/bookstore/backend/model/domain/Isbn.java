@@ -41,7 +41,7 @@ public final class Isbn {
         if (isbn.length() == MODERN_ISBN_LENGTH && !isbn.matches("^\\d{13}"))
             throw new InvalidIsbnException("Modern ISBN should contain only digits");
 
-        if (isbn.length() == LEGACY_ISBN_LENGTH && !isbn.matches("^\\d{9}[\\dX]$"))
+        if (isbn.length() == LEGACY_ISBN_LENGTH && !isbn.matches("^\\d{9}[\\dXx]$"))
             throw new InvalidIsbnException("Legacy ISBN should contain only digits and may use X as checksum");
 
         if (!isValidChecksum(isbn))
@@ -56,7 +56,11 @@ public final class Isbn {
     private static boolean isValidChecksum(String ISBN) {
         String isbnWithoutChecksum = ISBN.substring(0, ISBN.length() - 1);
         char expectedChecksum = calculateChecksumChar(isbnWithoutChecksum);
-        return expectedChecksum == ISBN.charAt(ISBN.length() - 1);
+
+        char actualChecksum = ISBN.charAt(ISBN.length() - 1);
+        actualChecksum = actualChecksum == 'x' ? 'X' : actualChecksum;
+
+        return expectedChecksum == actualChecksum;
     }
 
     private static char calculateChecksumChar(String isbnWithoutChecksum) {

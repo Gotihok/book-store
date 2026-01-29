@@ -49,8 +49,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class BookControllerTest {
     public static final String CREATE_PATH = "/api/books/new";
-    public static final String FIND_PATH = "/api/books";
     public static final String GET_BY_ID_PATH = "/api/books/{isbn}";
+    public static final String FIND_PATH = "/api/books";
 
     @Autowired
     MockMvc mockMvc;

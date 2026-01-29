@@ -42,6 +42,16 @@ class IsbnTest {
         assertEquals(expectedIsbn13String, isbnObject.getValue());
     }
 
+    @Test
+    void constructor_shouldInstantiateAndTransformToIsbn13_whenIsbn10IsValidWithChecksumLowercaseX() {
+        String inputIsbn10String = "385197252x";
+        String expectedIsbn13String = "9783851972528";
+
+        Isbn isbnObject = new Isbn(inputIsbn10String);
+
+        assertEquals(expectedIsbn13String, isbnObject.getValue());
+    }
+
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {
