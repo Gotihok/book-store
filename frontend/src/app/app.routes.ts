@@ -20,6 +20,12 @@ export const routes: Routes = [
       import('./features/test/pages/test.page/test.page').then(m => m.TestPage)
   },
   {
+    path: 'books/create',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./features/books/pages/book-creation.page/book-creation.page').then(m => m.BookCreationPage)
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'

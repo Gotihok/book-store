@@ -21,7 +21,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Override
     public Book create(BookCreationRequest creationRequest) {
-        if (bookRepository.existsByIsbn(new Isbn(creationRequest.ISBN())))
+        if (bookRepository.existsByIsbn(new Isbn(creationRequest.isbn())))
             throw new ResourceAlreadyExistsException("Current ISBN already exists");
 
         return bookRepository.save(

@@ -1,0 +1,39 @@
+<h2>Create Book</h2>
+
+<form [formGroup]="bookCreationForm" (ngSubmit)="onSubmit()">
+  <app-form-field
+    label="ISBN"
+    inputId="isbn"
+    placeholder="ISBN-10 or ISBN-13"
+    [control]="bookCreationForm.controls.isbn"
+    errorMessage="ISBN should contain at least 10 characters">
+  </app-form-field>
+
+  <app-form-field
+    label="Title"
+    inputId="title"
+    placeholder="Book title"
+    [control]="bookCreationForm.controls.title"
+    errorMessage="Title is required">
+  </app-form-field>
+
+  <app-form-field
+    label="Author"
+    inputId="author"
+    placeholder="Author name"
+    [control]="bookCreationForm.controls.author"
+    errorMessage="Author is required">
+  </app-form-field>
+
+  <app-form-field
+    label="Publisher"
+    inputId="publisher"
+    placeholder="Publisher"
+    [control]="bookCreationForm.controls.publisher"
+    errorMessage="Publisher is required">
+  </app-form-field>
+
+  <button type="submit" [disabled]="bookCreationForm.invalid || isSubmitting">
+    Create
+  </button>
+</form>

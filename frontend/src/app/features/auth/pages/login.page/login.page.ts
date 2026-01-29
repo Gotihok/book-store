@@ -9,7 +9,7 @@ import {
 } from "@angular/forms";
 import {FormFieldComponent} from '../../../../shared/components/form-field.component/form-field.component';
 import {AuthService} from '../../services/auth.service';
-import {Router} from '@angular/router';
+import {Router, RouterLink} from '@angular/router';
 import {LoggerService} from '../../../../shared/services/logger.service';
 import {LoginRequest} from '../../api/login-request';
 import {RegisterRequest} from '../../api/register-request';
@@ -24,7 +24,8 @@ export type LoginFormModel = {
   imports: [
     FormsModule,
     FormFieldComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterLink
   ],
   templateUrl: './login.page.html',
   styleUrl: './login.page.css',

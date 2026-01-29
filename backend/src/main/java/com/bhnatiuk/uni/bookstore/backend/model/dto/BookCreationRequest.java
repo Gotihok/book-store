@@ -18,14 +18,14 @@ public record BookCreationRequest(
 
         @NotBlank
         @Pattern(regexp = "^(\\d{9}[\\dX]|\\d{13})$")
-        String ISBN
+        String isbn
 ) {
         public static Book toEntity(BookCreationRequest request) {
                 Book entity= new Book();
                 entity.setTitle(request.title());
                 entity.setAuthor(request.author());
                 entity.setPublisher(request.publisher());
-                entity.setIsbn(new Isbn(request.ISBN()));
+                entity.setIsbn(new Isbn(request.isbn()));
                 return entity;
         }
 }
