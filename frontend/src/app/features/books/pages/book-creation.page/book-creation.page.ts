@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import {
-  FormBuilder,
   FormControl,
   FormGroup,
   NonNullableFormBuilder,
@@ -12,6 +11,7 @@ import {BookCreationRequest} from '../../api/book-creation-request';
 import {BookService} from '../../services/book.service';
 import {Router} from '@angular/router';
 import {BookResponse} from '../../api/book-response';
+import {HttpResponse} from '@angular/common/http';
 
 export type BookCreationFromModel = {
   isbn: FormControl<string>;
@@ -54,22 +54,26 @@ export class BookCreationPage {
 
     this.isSubmitting = true;
 
-    const raw = this.bookCreationForm.getRawValue();
-
-    const payload: BookCreationRequest = {
-      ...raw,
-      isbn: raw.isbn.replace(/[^0-9Xx]/g, '').toUpperCase()
-    }
+    const payload: BookCreationRequest = this.bookCreationForm.getRawValue();
 
     console.log(payload);
 
     this.bookService.createBook(payload).subscribe({
-      next: (response: BookResponse) => {
-        console.log(response);
-        // //TODO: make proper navigation
-        // this.router.navigate(['/users']);
+      next: (response: HttpResponse<BookResponse>): void => {
+        console.log('Response: ', response);
+
+        const book = response.body!;
+        const location = response.headers.get('Location');
+        console.log('Location: ', location);
+
+        this.router.navigate(
+          ['/books', book.isbn],
+          {
+            state: {bookApiUrl: location}
+          }
+        );
       },
-      error: (err) => {
+      error: (err): void => {
         console.error(err);
         this.isSubmitting = false;
       }

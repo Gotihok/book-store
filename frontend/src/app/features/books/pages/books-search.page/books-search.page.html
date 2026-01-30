@@ -1,0 +1,52 @@
+<h2>Search Books</h2>
+
+<form [formGroup]="searchForm" (ngSubmit)="onSearch()">
+  <app-form-field
+    label="Title"
+    inputId="title"
+    placeholder="Search by title"
+    [control]="searchForm.controls.title">
+  </app-form-field>
+
+  <app-form-field
+    label="Author"
+    inputId="author"
+    placeholder="Search by author"
+    [control]="searchForm.controls.author">
+  </app-form-field>
+
+  <button type="submit" [disabled]="isLoading()">
+    Search
+  </button>
+
+  <button type="button" (click)="clear()">
+    Clear
+  </button>
+</form>
+
+@if (isLoading()) {
+  <p>Loading...</p>
+}
+
+@if (!isLoading() && hasSearched() && books().length === 0) {
+  <p>No books found</p>
+}
+
+@if (books().length > 0) {
+  <div class="books-list">
+    @for (book of books(); track book.isbn) {
+      <div
+        class="book-card"
+        role="button"
+        tabindex="0"
+        (click)="openBook(book)">
+
+        <h3>{{ book.title }}</h3>
+        <p><strong>Author:</strong> {{ book.author }}</p>
+        <p><strong>ISBN:</strong> {{ book.isbn }}</p>
+        <p><strong>Publisher:</strong> {{ book.publisher }}</p>
+
+      </div>
+    }
+  </div>
+}

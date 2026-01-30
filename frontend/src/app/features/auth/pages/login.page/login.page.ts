@@ -54,10 +54,7 @@ export class LoginPage {
 
     this.isSubmitting = true;
 
-    const payload: LoginRequest = this.loginForm.getRawValue() as {
-      username: string;
-      password: string;
-    };
+    const payload: LoginRequest = this.loginForm.getRawValue();
 
     this.authService.login(payload).subscribe({
       next: () => {

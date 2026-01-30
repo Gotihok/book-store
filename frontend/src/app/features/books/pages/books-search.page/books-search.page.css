@@ -1,0 +1,15 @@
+.books-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.book-card {
+  padding: 1rem;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.book-card:hover {
+  background-color: #f5f5f5;
+}

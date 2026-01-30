@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {BookCreationRequest} from '../api/book-creation-request';
 import {Observable} from 'rxjs';
 import {BookResponse} from '../api/book-response';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams, HttpResponse} from '@angular/common/http';
 import {LoggerService} from '../../../shared/services/logger.service';
 
 @Injectable({
@@ -15,18 +15,45 @@ export class BookService {
     private http: HttpClient,
   ) {}
 
-  createBook(request: BookCreationRequest): Observable<BookResponse> {
-    return this.http.post<BookResponse>(`${this.apiUrl}/new`, request);
+  createBook(request: BookCreationRequest): Observable<HttpResponse<BookResponse>> {
+    request = {
+      ...request,
+      isbn: request.isbn.replace(/[^0-9Xx]/g, '').toUpperCase()
+    }
+
+    return this.http.post<BookResponse>(
+      `${this.apiUrl}/new`,
+      request,
+      { observe: 'response' },
+    );
   }
 
   getBookByIsbn(isbn: string): Observable<BookResponse> {
-    return new Observable();
+    isbn = isbn.replace(/[^0-9Xx]/g, '').toUpperCase();
+    return this.http.get<BookResponse>(`${this.apiUrl}/${isbn}`,);
+  }
+
+  getBookByUrl(url: string): Observable<BookResponse> {
+    return this.http.get<BookResponse>(url);
   }
 
   findBooks(params: {
     author?: string;
     title?: string;
   }): Observable<BookResponse[]> {
-    return new Observable();
+    let httpParams = new HttpParams();
+
+    if (params.author) {
+      httpParams = httpParams.set('author', params.author);
+    }
+
+    if (params.title) {
+      httpParams = httpParams.set('title', params.title);
+    }
+
+    return this.http.get<BookResponse[]>(
+      this.apiUrl,
+      { params: httpParams }
+    );
   }
 }

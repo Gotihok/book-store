@@ -1,0 +1,18 @@
+<h2>Book Details</h2>
+
+@if (isLoading()) {
+  <p>Loading book details…</p>
+}
+
+@if (errorMessage()) {
+  <p class="error">{{ errorMessage() }}</p>
+}
+
+@if (book()) {
+  <ul>
+    <li><strong>Title:</strong> {{ book()?.title }}</li>
+    <li><strong>Author:</strong> {{ book()?.author }}</li>
+    <li><strong>Publisher:</strong> {{ book()?.publisher }}</li>
+    <li><strong>ISBN:</strong> {{ book()?.isbn }}</li>
+  </ul>
+}

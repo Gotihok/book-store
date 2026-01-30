@@ -1,0 +1,28 @@
+<header class="top-nav">
+  <div class="brand">
+    <ng-content select="[brand]"></ng-content>
+  </div>
+
+
+  <nav class="nav-links">
+    @for (item of items(); track item.route) {
+      <a
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+        [class.disabled]="item.disabled"
+        (click)="item.disabled && $event.preventDefault()"
+      >
+        @if (item.icon) {
+          <span class="icon">{{ item.icon }}</span>
+        }
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+
+  <div class="actions">
+    <ng-content select="[actions]"></ng-content>
+  </div>
+</header>
