@@ -124,7 +124,7 @@ class BookServiceImplTest {
         expectedEntity.setPublisher("Publisher");
         expectedEntity.setIsbn(new Isbn("9780306406157"));
 
-        when(bookRepository.findByAuthorContainingAndTitleContaining(author, title))
+        when(bookRepository.findByAuthorContainingIgnoreCaseAndTitleContainingIgnoreCase(author, title))
                 .thenReturn(List.of(expectedEntity));
 
         List<BookResponse> result = bookService.find(author, title);
@@ -132,7 +132,7 @@ class BookServiceImplTest {
         assertEquals(1, result.size());
         assertEquals("Effective Java", result.getFirst().title());
 
-        verify(bookRepository).findByAuthorContainingAndTitleContaining(author, title);
+        verify(bookRepository).findByAuthorContainingIgnoreCaseAndTitleContainingIgnoreCase(author, title);
         verifyNoMoreInteractions(bookRepository);
     }
 
@@ -147,7 +147,7 @@ class BookServiceImplTest {
         expectedEntity.setPublisher("Publisher");
         expectedEntity.setIsbn(new Isbn("9780306406157"));
 
-        when(bookRepository.findByAuthorContaining(author))
+        when(bookRepository.findByAuthorContainingIgnoreCase(author))
                 .thenReturn(List.of(expectedEntity));
 
         List<BookResponse> result = bookService.find(author, null);
@@ -155,7 +155,7 @@ class BookServiceImplTest {
         assertEquals(1, result.size());
         assertEquals(author, result.getFirst().author());
 
-        verify(bookRepository).findByAuthorContaining(author);
+        verify(bookRepository).findByAuthorContainingIgnoreCase(author);
         verifyNoMoreInteractions(bookRepository);
     }
 
@@ -170,7 +170,7 @@ class BookServiceImplTest {
         expectedEntity.setPublisher("Publisher");
         expectedEntity.setIsbn(new Isbn("9780306406157"));
 
-        when(bookRepository.findByTitleContaining(title))
+        when(bookRepository.findByTitleContainingIgnoreCase(title))
                 .thenReturn(List.of(expectedEntity));
 
         List<BookResponse> result = bookService.find(null, title);
@@ -178,7 +178,7 @@ class BookServiceImplTest {
         assertEquals(1, result.size());
         assertTrue(result.getFirst().title().contains(title));
 
-        verify(bookRepository).findByTitleContaining(title);
+        verify(bookRepository).findByTitleContainingIgnoreCase(title);
         verifyNoMoreInteractions(bookRepository);
     }
 

@@ -41,7 +41,7 @@ public class BookServiceImpl implements BookService {
     public List<BookResponse> find(String author, String title) {
         if (author != null && title != null) {
             return bookRepository
-                    .findByAuthorContainingAndTitleContaining(author, title)
+                    .findByAuthorContainingIgnoreCaseAndTitleContainingIgnoreCase(author, title)
                     .stream()
                     .map(BookResponse::from)
                     .toList();
@@ -49,7 +49,7 @@ public class BookServiceImpl implements BookService {
 
         if (author != null) {
             return bookRepository
-                    .findByAuthorContaining(author)
+                    .findByAuthorContainingIgnoreCase(author)
                     .stream()
                     .map(BookResponse::from)
                     .toList();
@@ -57,7 +57,7 @@ public class BookServiceImpl implements BookService {
 
         if (title != null) {
             return bookRepository
-                    .findByTitleContaining(title)
+                    .findByTitleContainingIgnoreCase(title)
                     .stream()
                     .map(BookResponse::from)
                     .toList();

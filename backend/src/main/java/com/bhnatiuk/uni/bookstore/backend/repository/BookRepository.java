@@ -8,13 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
-    //TODO: add containing to each search except of isbn
 
-    List<Book> findByAuthorContainingAndTitleContaining(String author, String title);
+    List<Book> findByAuthorContainingIgnoreCaseAndTitleContainingIgnoreCase(String author, String title);
 
-    List<Book> findByAuthorContaining(String author);
+    List<Book> findByAuthorContainingIgnoreCase(String author);
 
-    List<Book> findByTitleContaining(String title);
+    List<Book> findByTitleContainingIgnoreCase(String title);
 
     Optional<Book> findByIsbn(Isbn isbn);
 

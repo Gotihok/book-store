@@ -53,7 +53,7 @@ class BookRepositoryTest {
         saveBook("Joshua Bloch", "Effective Java", "Addison-Wesley", "9784876811090");
 
         List<Book> result =
-                bookRepository.findByAuthorContainingAndTitleContaining("Martin", "Clean");
+                bookRepository.findByAuthorContainingIgnoreCaseAndTitleContainingIgnoreCase("martin", "clean");
 
         assertEquals(2, result.size());
         assertTrue(
@@ -69,7 +69,7 @@ class BookRepositoryTest {
         saveBook("Robert Martin", "Clean Code", "Prentice Hall", "9780306406157");
         saveBook("Joshua Bloch", "Effective Java", "Addison-Wesley", "9791861972711");
 
-        List<Book> result = bookRepository.findByAuthorContaining("Martin");
+        List<Book> result = bookRepository.findByAuthorContainingIgnoreCase("martin");
 
         assertEquals(1, result.size());
         assertTrue(result.getFirst().getAuthor().contains("Martin"));
@@ -80,7 +80,7 @@ class BookRepositoryTest {
         saveBook("Robert Martin", "Clean Code", "Prentice Hall", "9780306406157");
         saveBook("Robert Martin", "Clean Architecture", "Pearson", "9791861972711");
 
-        List<Book> result = bookRepository.findByTitleContaining("Architecture");
+        List<Book> result = bookRepository.findByTitleContainingIgnoreCase("architecture");
 
         assertEquals(1, result.size());
         assertEquals("Clean Architecture", result.getFirst().getTitle());
