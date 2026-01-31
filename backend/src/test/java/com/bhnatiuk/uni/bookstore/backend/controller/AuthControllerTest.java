@@ -6,6 +6,7 @@ import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilte
 import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -160,5 +162,19 @@ class AuthControllerTest {
     @MethodSource("invalidLoginRequestProvider")
     void login_shouldReturnBadRequest_whenDtoValidationFails(UserLoginRequest request) throws Exception {
         testInvalidDtoRequest(request, LOGIN_PATH);
+    }
+
+    @Test
+    void login_shouldReturnUnauthorized_whenLoginToUnexistentUser() throws Exception {
+        UserLoginRequest loginRequest =
+                new UserLoginRequest("testUser", "testPassword");
+
+        when(authService.login(any(UserLoginRequest.class)))
+                .thenThrow(new BadCredentialsException("Bad credentials"));
+
+        mockMvc.perform(post(LOGIN_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized());
     }
 }

@@ -27,7 +27,6 @@ public class AuthController {
         );
     }
 
-    // TODO: handle login requests for unexistent users and return meaningful status code
     @PostMapping("/api/auth/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody UserLoginRequest loginRequest) {
         return ResponseEntity.ok(

@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -124,6 +125,7 @@ class AuthServiceImplTest {
                 1000 * 60
         );
 
+        when(userRepository.existsByUsername(any(String.class))).thenReturn(true);
         when(authenticationManager.authenticate(any(Authentication.class))).thenReturn(authentication);
         when(authentication.getName()).thenReturn("testUsername");
         when(tokenService.generateToken("testUsername")).thenReturn(expectedTokenResponse.jwtToken());
@@ -145,10 +147,20 @@ class AuthServiceImplTest {
 
     @Test
     void login_shouldThrowAuthenticationException_whenAuthenticationFails() {
+        when(userRepository.existsByUsername(any(String.class))).thenReturn(true);
+
         when(authenticationManager.authenticate(any(Authentication.class)))
                 .thenThrow(UsernameNotFoundException.class);
 
         assertThrows(AuthenticationException.class, () -> authServiceImpl.login(loginRequest));
+        verify(tokenService, never()).generateToken(any());
+    }
+
+    @Test
+    void login_shouldThrowBadCredentialsException_whenUsernameNotExists() {
+        when(userRepository.existsByUsername(any(String.class))).thenReturn(false);
+
+        assertThrows(BadCredentialsException.class, () -> authServiceImpl.login(loginRequest));
         verify(tokenService, never()).generateToken(any());
     }
 }

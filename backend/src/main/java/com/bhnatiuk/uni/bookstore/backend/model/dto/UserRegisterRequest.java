@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Pattern;
 
 public record UserRegisterRequest(
 
-        //TODO: test dto validation
         @NotBlank
         @Pattern(regexp = "^[a-zA-Z0-9._-]+$")
         String username,

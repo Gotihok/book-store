@@ -7,6 +7,7 @@ import com.bhnatiuk.uni.bookstore.backend.model.exception.ResourceAlreadyExistsE
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -29,7 +30,8 @@ public class HttpStatusExceptionMapper implements ExceptionMapper<HttpStatus> {
                     NotFoundException.class, HttpStatus.NOT_FOUND,
                     NoResourceFoundException.class, HttpStatus.NOT_FOUND,
 
-                    AuthenticationException.class, HttpStatus.UNAUTHORIZED
+                    AuthenticationException.class, HttpStatus.UNAUTHORIZED,
+                    BadCredentialsException.class, HttpStatus.UNAUTHORIZED
             );
 
     @Override

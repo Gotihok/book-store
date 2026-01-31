@@ -10,6 +10,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,6 +53,9 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     @Override
     public TokenResponse login(@NotNull UserLoginRequest loginRequest) {
+        if (!userRepository.existsByUsername(loginRequest.username()))
+            throw new BadCredentialsException("Provided credentials do not exist");
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginRequest.username(),

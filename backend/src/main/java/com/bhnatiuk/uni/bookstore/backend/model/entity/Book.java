@@ -5,6 +5,8 @@ import com.bhnatiuk.uni.bookstore.backend.model.entity.converter.IsbnConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 
+//TODO: add nullable description
+//TODO: add book's content with polyglot persistence
 @Entity
 @Table(name = "books")
 @Data
