@@ -6,7 +6,6 @@ import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilte
 import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserRegisterRequest;
-import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
 import com.bhnatiuk.uni.bookstore.backend.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,9 +52,6 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
-
-    @Autowired
-    private GlobalExceptionHandler globalExceptionHandler;
 
     @Autowired
     private ObjectMapper objectMapper;

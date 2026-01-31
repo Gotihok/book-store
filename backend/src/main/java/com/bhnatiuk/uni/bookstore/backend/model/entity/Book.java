@@ -15,6 +15,8 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //TODO: add isbn to entity updates (allows change isbn user input mistakes)
+    // CAUTION! all server side references should use Long id and never expose it to frontend
     @Column(
             unique = true,
             nullable = false,

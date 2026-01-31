@@ -3,6 +3,7 @@ package com.bhnatiuk.uni.bookstore.backend.controller;
 import com.bhnatiuk.uni.bookstore.backend.model.domain.Isbn;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookCreationRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.BookUpdateRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.Book;
 import com.bhnatiuk.uni.bookstore.backend.service.BookService;
 import jakarta.validation.Valid;
@@ -58,5 +59,31 @@ public class BookController {
         );
     }
 
-    //TODO: add update and delete endpoints
+    @PatchMapping("/api/books/{isbn}")
+    public ResponseEntity<BookResponse> updateBookByIsbn(
+            @PathVariable
+            @NotBlank
+            @Pattern(regexp = "^(\\d{9}[\\dX]|\\d{13})$")
+            String isbn,
+
+            @RequestBody
+            @Valid
+            BookUpdateRequest request
+    ) {
+        return ResponseEntity.ok(
+                bookService.updateByIsbn(new Isbn(isbn), request)
+        );
+    }
+
+    @DeleteMapping("/api/books/{isbn}")
+    public ResponseEntity<BookResponse> deleteBookByIsbn(
+            @PathVariable
+            @NotBlank
+            @Pattern(regexp = "^(\\d{9}[\\dX]|\\d{13})$")
+            String isbn
+    ) {
+        return ResponseEntity.ok(
+                bookService.deleteByIsbn(new Isbn(isbn))
+        );
+    }
 }

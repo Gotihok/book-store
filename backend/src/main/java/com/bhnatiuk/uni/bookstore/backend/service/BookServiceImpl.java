@@ -3,6 +3,7 @@ package com.bhnatiuk.uni.bookstore.backend.service;
 import com.bhnatiuk.uni.bookstore.backend.model.domain.Isbn;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookCreationRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.BookUpdateRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.Book;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.ResourceAlreadyExistsException;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
@@ -68,5 +70,34 @@ public class BookServiceImpl implements BookService {
                 .stream()
                 .map(BookResponse::from)
                 .toList();
+    }
+
+    @Override
+    public BookResponse updateByIsbn(Isbn isbn, BookUpdateRequest request) {
+        Book retrievedEntity = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new NotFoundException("Book not found"));
+
+        setIfNotBlank(request.author(), retrievedEntity::setAuthor);
+        setIfNotBlank(request.title(), retrievedEntity::setTitle);
+        setIfNotBlank(request.publisher(), retrievedEntity::setPublisher);
+
+        Book savedEntity = bookRepository.save(retrievedEntity);
+        return BookResponse.from(savedEntity);
+    }
+
+    private void setIfNotBlank(String value, Consumer<String> setter) {
+        if (value != null && !value.isBlank()) {
+            setter.accept(value);
+        }
+    }
+
+    @Override
+    public BookResponse deleteByIsbn(Isbn isbn) {
+        Book entity = bookRepository.findByIsbn(isbn)
+                .orElseThrow(() -> new NotFoundException("Book not found"));
+
+        bookRepository.delete(entity);
+
+        return BookResponse.from(entity);
     }
 }

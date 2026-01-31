@@ -6,9 +6,10 @@ import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilte
 import com.bhnatiuk.uni.bookstore.backend.model.domain.Isbn;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookCreationRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.BookUpdateRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.Book;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
 import com.bhnatiuk.uni.bookstore.backend.service.BookService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -26,13 +27,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(
@@ -51,6 +53,8 @@ class BookControllerTest {
     public static final String CREATE_PATH = "/api/books/new";
     public static final String GET_BY_ID_PATH = "/api/books/{isbn}";
     public static final String FIND_PATH = "/api/books";
+    public static final String UPDATE_BY_ISBN_PATH = "/api/books/{isbn}";
+    public static final String DELETE_BY_ISBN_PATH = "/api/books/{isbn}";
 
     @Autowired
     MockMvc mockMvc;
@@ -59,15 +63,7 @@ class BookControllerTest {
     private BookService bookService;
 
     @Autowired
-    private GlobalExceptionHandler globalExceptionHandler;
-
-    @Autowired
     private ObjectMapper objectMapper;
-
-    @BeforeEach
-    void setUp() {
-        globalExceptionHandler = new GlobalExceptionHandler(new HttpStatusExceptionMapper());
-    }
 
     private <T> void testInvalidDtoRequest(T request, String requestPath) throws Exception {
         mockMvc.perform(post(requestPath)
@@ -228,5 +224,185 @@ class BookControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    //TODO: test find endpoint
+    @Test
+    void find_shouldReturnBooksList_whenBooksAreFound() throws Exception {
+        BookResponse book1 = new BookResponse(
+                "Title1", "Author1", "Publisher1", "testIsbn1");
+        BookResponse book2 = new BookResponse(
+                "Title2", "Author2", "Publisher2", "testIsbn2");
+
+        when(bookService.find("Author", "Title"))
+                .thenReturn(List.of(book1, book2));
+
+        mockMvc.perform(get(FIND_PATH)
+                        .param("title", "Title")
+                        .param("author", "Author"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(equalTo(2))))
+                .andExpect(jsonPath("$[*].title",
+                        hasItems(book1.title(), book2.title())))
+                .andExpect(jsonPath("$[*].author",
+                        hasItems(book1.author(), book2.author())));
+    }
+
+    @Test
+    void find_shouldReturnEmptyList_whenBooksAreNotFound() throws Exception {
+        when(bookService.find(any(String.class), any(String.class)))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get(FIND_PATH)
+                        .param("title", "Title")
+                        .param("author", "Author"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(equalTo(0))));
+    }
+
+    @Test
+    void updateBookById_shouldReturnUpdatedBook_whenExistentIsbn() throws Exception {
+        Isbn isbn = new Isbn("9784876811090");
+        BookResponse updatedBook = new BookResponse(
+                "Title",  "Author", "Publisher", isbn.getValue());
+
+        BookUpdateRequest request = new BookUpdateRequest(
+                "Title", "Author", "Publisher");
+
+        when(bookService.updateByIsbn(any(Isbn.class), eq(request)))
+                .thenReturn(updatedBook);
+
+        mockMvc.perform(patch(UPDATE_BY_ISBN_PATH, isbn.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        objectMapper.writeValueAsString(updatedBook)
+                ));
+
+        verify(bookService).updateByIsbn(any(Isbn.class), eq(request));
+    }
+
+    @Test
+    void updateBookById_shouldReturnNotFound_whenUnexistentIsbn() throws Exception {
+        Isbn isbn = new Isbn("9784876811090");
+        BookUpdateRequest request = new BookUpdateRequest(
+                "Title", "Author", "Publisher");
+
+        when(bookService.updateByIsbn(any(Isbn.class), any(BookUpdateRequest.class)))
+                .thenThrow(new NotFoundException("Not found"));
+
+        mockMvc.perform(patch(UPDATE_BY_ISBN_PATH, isbn.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateBookById_shouldReturnBadRequest_whenNullRequestBody() throws Exception {
+        Isbn isbn = new Isbn("9784876811090");
+
+        mockMvc.perform(patch(UPDATE_BY_ISBN_PATH, isbn.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(null)))
+                .andExpect(status().isBadRequest());
+    }
+
+    public static Stream<BookUpdateRequest> nullAndEmptyFields_bookUpdateRequestProvider() {
+        return Stream.of(
+                new BookUpdateRequest(null, null, null),
+                new BookUpdateRequest("", "", ""),
+                new BookUpdateRequest(" ", " ", " "),
+                new BookUpdateRequest(null, "", null),
+                new BookUpdateRequest(null, " ", null),
+                new BookUpdateRequest(null, " ", "")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("nullAndEmptyFields_bookUpdateRequestProvider")
+    void updateBookById_shouldReturnBadRequest_whenRequestBodyContainsOnlyNullOrEmptyValues(
+            BookUpdateRequest request
+    ) throws Exception {
+        Isbn isbn = new Isbn("9784876811090");
+
+        mockMvc.perform(patch(UPDATE_BY_ISBN_PATH, isbn.getValue())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            " ",
+            "  "
+    })
+    @MethodSource("invalidIsbns")
+    void updateBookById_shouldReturnBadRequest_whenInvalidIsbn(String isbn) throws Exception {
+        BookUpdateRequest request = new BookUpdateRequest(
+                "Title", "Author", "Publisher");
+
+        mockMvc.perform(patch(UPDATE_BY_ISBN_PATH, isbn)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SuppressWarnings("JUnitMalformedDeclaration")
+    @ParameterizedTest
+    @NullAndEmptySource
+    void updateBookById_shouldReturnNotFound_whenNullOrEmptyIsbn(String isbn) throws Exception {
+        BookUpdateRequest request = new BookUpdateRequest(
+                "Title", "Author", "Publisher");
+
+        mockMvc.perform(patch(UPDATE_BY_ISBN_PATH, isbn)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteBookByIsbn_shouldReturnDeletedBook_whenExistentIsbn() throws Exception {
+        Isbn isbn = new Isbn("9784876811090");
+        BookResponse deletedBook = new BookResponse(
+                "Title",  "Author", "Publisher", isbn.getValue());
+
+        when(bookService.deleteByIsbn(any(Isbn.class)))
+                .thenReturn(deletedBook);
+
+        mockMvc.perform(delete(DELETE_BY_ISBN_PATH, isbn.getValue()))
+                .andExpect(status().isOk())
+                .andExpect(content().json(
+                        objectMapper.writeValueAsString(deletedBook)
+                ));
+
+        verify(bookService).deleteByIsbn(any(Isbn.class));
+    }
+
+    @Test
+    void deleteBookByIsbn_shouldReturnNotFound_whenUnexistentIsbn() throws Exception {
+        Isbn isbn = new Isbn("9784876811090");
+
+        when(bookService.deleteByIsbn(any(Isbn.class)))
+                .thenThrow(new NotFoundException("Not found"));
+
+        mockMvc.perform(delete(DELETE_BY_ISBN_PATH, isbn.getValue()))
+                .andExpect(status().isNotFound());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            " ",
+            "  "
+    })
+    @MethodSource("invalidIsbns")
+    void deleteBookByIsbn_shouldReturnBadRequest_whenInvalidIsbn(String isbn) throws Exception {
+        mockMvc.perform(delete(DELETE_BY_ISBN_PATH, isbn))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SuppressWarnings("JUnitMalformedDeclaration")
+    @ParameterizedTest
+    @NullAndEmptySource
+    void deleteBookByIsbn_shouldReturnNotFound_whenNullOrEmptyIsbn(String isbn) throws Exception {
+        mockMvc.perform(delete(DELETE_BY_ISBN_PATH, isbn))
+                .andExpect(status().isNotFound());
+    }
 }

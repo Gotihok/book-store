@@ -3,12 +3,16 @@ package com.bhnatiuk.uni.bookstore.backend.service;
 import com.bhnatiuk.uni.bookstore.backend.model.domain.Isbn;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookCreationRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookResponse;
+import com.bhnatiuk.uni.bookstore.backend.model.dto.BookUpdateRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.Book;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.ResourceAlreadyExistsException;
 import com.bhnatiuk.uni.bookstore.backend.repository.BookRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,6 +20,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -137,7 +143,7 @@ class BookServiceImplTest {
     }
 
     @Test
-    void shouldFindByAuthor_whenOnlyAuthorProvided() {
+    void find_shouldFindByAuthor_whenOnlyAuthorProvided() {
         String author = "Bloch";
 
         Book expectedEntity = new Book();
@@ -160,7 +166,7 @@ class BookServiceImplTest {
     }
 
     @Test
-    void shouldFindByTitle_whenOnlyTitleProvided() {
+    void find_shouldFindByTitle_whenOnlyTitleProvided() {
         String title = "Java";
 
         Book expectedEntity = new Book();
@@ -183,7 +189,7 @@ class BookServiceImplTest {
     }
 
     @Test
-    void shouldFindAll_whenNoFiltersProvided() {
+    void find_shouldFindAll_whenNoFiltersProvided() {
         Book book1 = new Book();
         book1.setId(1L);
         book1.setTitle("Effective Java");
@@ -207,5 +213,148 @@ class BookServiceImplTest {
 
         verify(bookRepository).findAll();
         verifyNoMoreInteractions(bookRepository);
+    }
+
+    //TODO: test update by isbn
+
+    static Stream<String> blanks() {
+        return Stream.of(null, "", " ");
+    }
+
+    static Stream<Arguments> updateRequests() {
+        Stream<Arguments> withBlanks = Stream.of(
+                // title only
+                blanks().map(b ->
+                        Arguments.of(
+                                new BookUpdateRequest("New title", b, b),
+                                "New title", "Old author", "Old publisher"
+                        )
+                ),
+
+                // author only
+                blanks().map(b ->
+                        Arguments.of(
+                                new BookUpdateRequest(b, "New author", b),
+                                "Old title", "New author", "Old publisher"
+                        )
+                ),
+
+                // publisher only
+                blanks().map(b ->
+                        Arguments.of(
+                                new BookUpdateRequest(b, b, "New publisher"),
+                                "Old title", "Old author", "New publisher"
+                        )
+                ),
+
+                // title and author
+                blanks().map(b ->
+                        Arguments.of(
+                                new BookUpdateRequest("New title", "New author", b),
+                                "New title", "New author", "Old publisher"
+                        )
+                ),
+
+                // title and publisher
+                blanks().map(b ->
+                        Arguments.of(
+                                new BookUpdateRequest("New title", b, "New publisher"),
+                                "New title", "Old author", "New publisher"
+                        )
+                ),
+
+                // author and publisher
+                blanks().map(b ->
+                        Arguments.of(
+                                new BookUpdateRequest(b, "New author", "New publisher"),
+                                "Old title", "New author", "New publisher"
+                        )
+                )
+        ).flatMap(Function.identity());
+
+        return Stream.concat(
+                withBlanks,
+                Stream.of(Arguments.of(
+                        new BookUpdateRequest("New title", "New author", "New publisher"),
+                        "New title", "New author", "New publisher"
+                )));
+    }
+
+    @ParameterizedTest
+    @MethodSource("updateRequests")
+    void updateByIsbn_shouldUpdateAndReturnBook_whenExistentIsbn(
+            BookUpdateRequest request,
+            String expTitle,
+            String expAuthor,
+            String expPublisher
+    ) {
+        Isbn isbn = new Isbn("9780132350884");
+
+        Book book = new Book();
+        book.setId(1L);
+        book.setTitle("Old title");
+        book.setAuthor("Old author");
+        book.setPublisher("Old publisher");
+        book.setIsbn(isbn);
+
+        when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.of(book));
+        when(bookRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        BookResponse res = bookService.updateByIsbn(isbn, request);
+
+        assertEquals(res.title(), expTitle);
+        assertEquals(res.author(), expAuthor);
+        assertEquals(res.publisher(), expPublisher);
+
+        verify(bookRepository).save(argThat(
+                saved -> saved.getTitle().equals(expTitle) &&
+                        saved.getAuthor().equals(expAuthor) &&
+                        saved.getPublisher().equals(expPublisher)
+        ));
+    }
+
+    @Test
+    void updateByIsbn_shouldThrowNotFoundException_whenBookNotFound() {
+        Isbn isbn = new Isbn("9780132350884");
+        when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.empty());
+
+        assertThrows(
+                NotFoundException.class,
+                () -> bookService.updateByIsbn(
+                        isbn, new BookUpdateRequest("New title", "New author", "New publisher"))
+        );
+        verify(bookRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteByIsbn_shouldDeleteAndReturnBook_whenExistentIsbn() {
+        Isbn isbn = new Isbn("9780132350884");
+        BookResponse expectedResponse = new BookResponse(
+                "Title", "Author", "Publisher", isbn.getValue()
+        );
+
+        Book expectedEntity = new Book();
+        expectedEntity.setId(1L);
+        expectedEntity.setTitle(expectedResponse.title());
+        expectedEntity.setAuthor(expectedResponse.author());
+        expectedEntity.setPublisher(expectedResponse.publisher());
+        expectedEntity.setIsbn(isbn);
+
+        when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.of(expectedEntity));
+
+        BookResponse actualResponse = bookService.deleteByIsbn(isbn);
+
+        assertEquals(expectedResponse, actualResponse);
+        verify(bookRepository).delete(expectedEntity);
+    }
+
+    @Test
+    void deleteByTitle_shouldThrowNotFoundException_whenUnexistentIsbn() {
+        Isbn isbn = new Isbn("9780132350884");
+        when(bookRepository.findByIsbn(isbn))
+                .thenReturn(Optional.empty());
+
+        assertThrows(NotFoundException.class, () -> bookService.deleteByIsbn(isbn));
+        verify(bookRepository, never()).delete(any(Book.class));
     }
 }
