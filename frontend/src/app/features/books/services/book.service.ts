@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {BookCreationRequest} from '../api/book-creation-request';
+import {BookUpdateRequest} from '../api/book-update-request';
 import {Observable} from 'rxjs';
 import {BookResponse} from '../api/book-response';
 import {HttpClient, HttpParams, HttpResponse} from '@angular/common/http';
@@ -15,10 +16,14 @@ export class BookService {
     private http: HttpClient,
   ) {}
 
+  private formatIsbn(isbn: string): string {
+    return isbn.replace(/[^0-9Xx]/g, '').toUpperCase();
+  }
+
   createBook(request: BookCreationRequest): Observable<HttpResponse<BookResponse>> {
     request = {
       ...request,
-      isbn: request.isbn.replace(/[^0-9Xx]/g, '').toUpperCase()
+      isbn: this.formatIsbn(request.isbn)
     }
 
     return this.http.post<BookResponse>(
@@ -29,8 +34,7 @@ export class BookService {
   }
 
   getBookByIsbn(isbn: string): Observable<BookResponse> {
-    isbn = isbn.replace(/[^0-9Xx]/g, '').toUpperCase();
-    return this.http.get<BookResponse>(`${this.apiUrl}/${isbn}`,);
+    return this.http.get<BookResponse>(`${this.apiUrl}/${this.formatIsbn(isbn)}`,);
   }
 
   getBookByUrl(url: string): Observable<BookResponse> {
@@ -55,5 +59,13 @@ export class BookService {
       this.apiUrl,
       { params: httpParams }
     );
+  }
+
+  updateBook(isbn: string, request: BookUpdateRequest): Observable<BookResponse> {
+    return this.http.patch<BookResponse>(`${this.apiUrl}/${this.formatIsbn(isbn)}`, request);
+  }
+
+  deleteBook(isbn: string): Observable<BookResponse> {
+    return this.http.delete<BookResponse>(`${this.apiUrl}/${this.formatIsbn(isbn)}`);
   }
 }

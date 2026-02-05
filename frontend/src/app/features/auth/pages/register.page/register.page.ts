@@ -55,11 +55,6 @@ export class RegisterPage {
     this.isSubmitting = true;
 
     const payload: RegisterRequest = this.registerForm.getRawValue();
-    // as {
-    //   username: string;
-    //   email: string;
-    //   password: string;
-    // };
 
     // Call backend via AuthService
     this.authService.register(payload).subscribe({
