@@ -1,9 +1,6 @@
 package com.bhnatiuk.uni.bookstore.backend.config.exception;
 
-import com.bhnatiuk.uni.bookstore.backend.model.exception.CredentialsAlreadyInUseException;
-import com.bhnatiuk.uni.bookstore.backend.model.exception.MalformedEmailException;
-import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
-import com.bhnatiuk.uni.bookstore.backend.model.exception.ResourceAlreadyExistsException;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.*;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,7 +32,9 @@ public class HttpStatusExceptionMapper implements ExceptionMapper<HttpStatus> {
                     entry(NoResourceFoundException.class, HttpStatus.NOT_FOUND),
 
                     entry(AuthenticationException.class, HttpStatus.UNAUTHORIZED),
-                    entry(BadCredentialsException.class, HttpStatus.UNAUTHORIZED)
+                    entry(BadCredentialsException.class, HttpStatus.UNAUTHORIZED),
+
+                    entry(InvalidIsbnException.class, HttpStatus.UNPROCESSABLE_CONTENT)
             );
 
     @Override

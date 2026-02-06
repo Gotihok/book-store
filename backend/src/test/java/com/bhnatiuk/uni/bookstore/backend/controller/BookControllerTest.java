@@ -8,6 +8,7 @@ import com.bhnatiuk.uni.bookstore.backend.model.dto.BookCreationRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.BookUpdateRequest;
 import com.bhnatiuk.uni.bookstore.backend.model.entity.Book;
+import com.bhnatiuk.uni.bookstore.backend.model.exception.InvalidIsbnException;
 import com.bhnatiuk.uni.bookstore.backend.model.exception.NotFoundException;
 import com.bhnatiuk.uni.bookstore.backend.service.BookService;
 import org.junit.jupiter.api.Test;
@@ -184,6 +185,20 @@ class BookControllerTest {
                 .map(isbn -> new BookCreationRequest(
                         "Test Title", "Test Author", "Test Publisher", isbn
                 ));
+    }
+
+    @Test
+    void createBook_shouldReturnUnprocessableContentStatus_whenIsbnExceptionThrown() throws Exception {
+        BookCreationRequest request = new BookCreationRequest(
+                "Test title", "Test Author", "Test Publisher", "9784876811090"
+        );
+
+        when(bookService.create(request)).thenThrow(new InvalidIsbnException("Invalid isbn"));
+
+        mockMvc.perform(post(CREATE_PATH)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnprocessableContent());
     }
 
     @Test
