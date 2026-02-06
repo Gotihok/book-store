@@ -9,7 +9,6 @@ import {LoggerService} from '../services/logger.service';
 export class JwtInterceptor implements HttpInterceptor {
   constructor(
     private authService: AuthService,
-    private router: Router,
     private logger: LoggerService
   ) {}
 
@@ -28,14 +27,6 @@ export class JwtInterceptor implements HttpInterceptor {
       }
     });
 
-    return next.handle(authReq).pipe(
-      catchError(err => {
-        if (err.status === 401) {
-          this.authService.logout();
-          this.router.navigate(['/login']);
-        }
-        return throwError(() => err);
-      })
-    );
+    return next.handle(authReq);
   }
 }
