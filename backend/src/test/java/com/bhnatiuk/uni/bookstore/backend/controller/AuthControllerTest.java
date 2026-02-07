@@ -1,7 +1,7 @@
 package com.bhnatiuk.uni.bookstore.backend.controller;
 
+import com.bhnatiuk.uni.bookstore.backend.config.exception.ExceptionMapperConfig;
 import com.bhnatiuk.uni.bookstore.backend.config.exception.GlobalExceptionHandler;
-import com.bhnatiuk.uni.bookstore.backend.config.exception.HttpStatusExceptionMapper;
 import com.bhnatiuk.uni.bookstore.backend.config.security.JwtAuthenticationFilter;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.TokenResponse;
 import com.bhnatiuk.uni.bookstore.backend.model.dto.UserLoginRequest;
@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @Import({
         GlobalExceptionHandler.class,
-        HttpStatusExceptionMapper.class
+        ExceptionMapperConfig.class
 })
 @AutoConfigureMockMvc(addFilters = false)
 class AuthControllerTest {
