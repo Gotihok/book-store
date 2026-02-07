@@ -10,6 +10,7 @@ export type BookSearchFormModel = {
   author: FormControl<string>;
 };
 
+//TODO: create simple sorting in frontend (move to backend later)
 @Component({
   selector: 'app-books-search.page',
   imports: [

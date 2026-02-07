@@ -1,8 +1,12 @@
 <app-top-nav [navItems]="nav">
   <span brand>Book Store</span>
 
-  <div actions (click)="loginRedirect()">
-    <button>Login</button>
+  <div actions>
+    @if (!isAuthenticated()) {
+      <button (click)="loginRedirect()">Login</button>
+    } @else {
+      <button (click)="logout()">Logout</button>
+    }
   </div>
 </app-top-nav>
 

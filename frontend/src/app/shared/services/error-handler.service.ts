@@ -22,7 +22,7 @@ export class ErrorHandlerService {
         break;
 
       case 401:
-        this.handleUnauthorized();
+        this.handleUnauthorized(error);
         break;
 
       case 403:
@@ -30,7 +30,7 @@ export class ErrorHandlerService {
         break;
 
       case 404:
-        this.handleNotFound();
+        this.handleNotFound(error);
         break;
 
       case 409:
@@ -55,8 +55,8 @@ export class ErrorHandlerService {
     this.notify.error(error.error?.message || 'Invalid request');
   }
 
-  private handleUnauthorized() {
-    this.notify.error('Unauthorized. Please log in.');
+  private handleUnauthorized(error: HttpErrorResponse) {
+    this.notify.error(error.error?.message);
     this.router.navigate(['/login']);
   }
 
@@ -64,8 +64,8 @@ export class ErrorHandlerService {
     this.notify.error('Access denied');
   }
 
-  private handleNotFound() {
-    this.notify.error('Resource not found');
+  private handleNotFound(error: HttpErrorResponse) {
+    this.notify.error(error.error?.message);
   }
 
   private handleConflict(error: HttpErrorResponse) {
@@ -73,7 +73,7 @@ export class ErrorHandlerService {
   }
 
   private handleValidation(error: HttpErrorResponse) {
-    this.notify.error('Validation failed');
+    this.notify.error(error.error?.message);
   }
 
   private handleServerError() {

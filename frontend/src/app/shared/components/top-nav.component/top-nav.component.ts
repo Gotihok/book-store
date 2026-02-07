@@ -4,7 +4,7 @@ import {RouterModule} from '@angular/router';
 export interface NavItem {
   label: string;
   route: string;
-  icon?: string; // optional icon name (Material, SVG key etc.)
+  icon?: string; // optional icon name (Material, SVG key, etc.)
   exact?: boolean; // router exact matching
   disabled?: boolean;
 }

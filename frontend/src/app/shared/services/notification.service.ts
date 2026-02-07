@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   error(message: string) {
-    console.error(message);
+    alert(message);
   }
 
   success(message: string) {
