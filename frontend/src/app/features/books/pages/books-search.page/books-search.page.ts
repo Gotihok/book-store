@@ -1,4 +1,4 @@
-import {Component, OnInit, signal} from '@angular/core';
+import {Component, computed, OnInit, signal} from '@angular/core';
 import {BookResponse} from '../../api/book-response';
 import {FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule} from '@angular/forms';
 import {BookService} from '../../services/book.service';
@@ -10,7 +10,13 @@ export type BookSearchFormModel = {
   author: FormControl<string>;
 };
 
-//TODO: create simple sorting in frontend (move to backend later)
+type SortOption =
+  | 'TITLE_ASC'
+  | 'TITLE_DESC'
+  | 'AUTHOR_ASC'
+  | 'AUTHOR_DESC';
+
+//TODO: frontend move sorting to backend
 @Component({
   selector: 'app-books-search.page',
   imports: [
@@ -26,6 +32,8 @@ export class BooksSearchPage implements OnInit {
   protected books = signal<BookResponse[]>([]);
   protected isLoading = signal(false);
   protected hasSearched = signal(false);
+
+  protected sortOption = signal<SortOption>('TITLE_ASC');
 
   constructor(
     private fb: NonNullableFormBuilder,
@@ -44,6 +52,26 @@ export class BooksSearchPage implements OnInit {
     this.search();
   }
 
+  protected sortedBooks = computed((): BookResponse[] => {
+    const books = [...this.books()];
+    const sort = this.sortOption();
+
+    return books.sort((a, b) => {
+      switch (sort) {
+        case 'TITLE_ASC':
+          return a.title.localeCompare(b.title);
+        case 'TITLE_DESC':
+          return b.title.localeCompare(a.title);
+        case 'AUTHOR_ASC':
+          return a.author.localeCompare(b.author);
+        case 'AUTHOR_DESC':
+          return b.author.localeCompare(a.author);
+        default:
+          return 0;
+      }
+    });
+  });
+
   protected onSearch(): void {
     const { title, author } = this.searchForm.getRawValue();
     this.isLoading.set(true);
@@ -59,6 +87,10 @@ export class BooksSearchPage implements OnInit {
 
   protected openBook(book: BookResponse): void {
     this.router.navigate(['/books', book.isbn]);
+  }
+
+  protected changeSort(option: SortOption): void {
+    this.sortOption.set(option);
   }
 
   private search(title?: string, author?: string): void {

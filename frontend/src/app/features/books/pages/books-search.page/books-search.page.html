@@ -24,6 +24,21 @@
   </button>
 </form>
 
+<div class="sort-bar">
+  <label for="sort">Sort by:</label>
+
+  <select
+    id="sort"
+    [value]="sortOption()"
+    (change)="changeSort($any($event.target).value)"
+  >
+    <option value="TITLE_ASC">Title (A → Z)</option>
+    <option value="TITLE_DESC">Title (Z → A)</option>
+    <option value="AUTHOR_ASC">Author (A → Z)</option>
+    <option value="AUTHOR_DESC">Author (Z → A)</option>
+  </select>
+</div>
+
 @if (isLoading()) {
   <p>Loading...</p>
 }
@@ -34,7 +49,7 @@
 
 @if (books().length > 0) {
   <div class="books-list">
-    @for (book of books(); track book.isbn) {
+    @for (book of sortedBooks(); track book.isbn) {
       <div
         class="book-card"
         role="button"
