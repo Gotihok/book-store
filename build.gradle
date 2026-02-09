@@ -1,3 +1,13 @@
+plugins {
+    id "com.github.node-gradle.node" version "7.0.2"
+}
+
+node {
+    version = "20.19.0"
+    npmVersion = "10.2.4"
+    download = true
+}
+
 tasks.register('buildAll') {
     group = 'build'
     description = 'Builds all subprojects'
@@ -17,12 +27,13 @@ def registerBuildGroupTask = { String taskName, String moduleKeyword ->
 }
 
 tasks.register("seed", Exec) {
+    dependsOn("installNodePackages")
+
     group = "dev"
     description = "Seeds the database with predefined data using Node.js script"
 
     workingDir = projectDir
 
-    // Run via shell to let PATH resolve npx/ts-node
     if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
         commandLine "cmd", "/c", "npx ts-node scripts/seed/seed.ts"
     } else {
@@ -32,6 +43,10 @@ tasks.register("seed", Exec) {
 
 registerBuildGroupTask('buildBackend', 'backend')
 registerBuildGroupTask('buildFrontend', 'frontend')
+
+tasks.register("installNodePackages", NpmTask) {
+    args = ["install"]
+}
 
 tasks.register("devStop", Exec) {
     group = "dev"
