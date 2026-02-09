@@ -8,10 +8,6 @@ node {
     download = true
 }
 
-plugins {
-    id "com.github.node-gradle.node" version "7.0.2" apply false
-}
-
 tasks.register('buildAll') {
     group = 'build'
     description = 'Builds all subprojects'
