@@ -1,0 +1,302 @@
+[
+  {
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "publisher": "Prentice Hall",
+    "isbn": ""
+  },
+  {
+    "title": "Effective Java",
+    "author": "Joshua Bloch",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "Domain-Driven Design",
+    "author": "Eric Evans",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "Spring in Action",
+    "author": "Craig Walls",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "Refactoring",
+    "author": "Martin Fowler",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "Head First Design Patterns",
+    "author": "Eric Freeman",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "The Pragmatic Programmer",
+    "author": "Andrew Hunt",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "Test-Driven Development",
+    "author": "Kent Beck",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "Java Concurrency in Practice",
+    "author": "Brian Goetz",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "Spring Boot in Action",
+    "author": "Craig Walls",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "Design Patterns",
+    "author": "Erich Gamma",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "Clean Architecture",
+    "author": "Robert C. Martin",
+    "publisher": "Prentice Hall",
+    "isbn": ""
+  },
+  {
+    "title": "Agile Principles, Patterns, and Practices",
+    "author": "Robert C. Martin",
+    "publisher": "Prentice Hall",
+    "isbn": ""
+  },
+  {
+    "title": "Working Effectively with Legacy Code",
+    "author": "Michael Feathers",
+    "publisher": "Prentice Hall",
+    "isbn": ""
+  },
+  {
+    "title": "Continuous Delivery",
+    "author": "Jez Humble",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "Microservices Patterns",
+    "author": "Chris Richardson",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "Building Microservices",
+    "author": "Sam Newman",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Spring Microservices in Action",
+    "author": "John Carnell",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "Reactive Spring",
+    "author": "Josh Long",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "Kubernetes Up & Running",
+    "author": "Kelsey Hightower",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Docker Deep Dive",
+    "author": "Nigel Poulton",
+    "publisher": "Leanpub",
+    "isbn": ""
+  },
+  {
+    "title": "Pro Git",
+    "author": "Scott Chacon",
+    "publisher": "Apress",
+    "isbn": ""
+  },
+  {
+    "title": "Learning Python",
+    "author": "Mark Lutz",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Python Cookbook",
+    "author": "David Beazley",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Effective Python",
+    "author": "Brett Slatkin",
+    "publisher": "Addison-Wesley",
+    "isbn": ""
+  },
+  {
+    "title": "JavaScript: The Good Parts",
+    "author": "Douglas Crockford",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "You Don't Know JS",
+    "author": "Kyle Simpson",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Eloquent JavaScript",
+    "author": "Marijn Haverbeke",
+    "publisher": "No Starch Press",
+    "isbn": ""
+  },
+  {
+    "title": "Programming TypeScript",
+    "author": "Boris Cherny",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Pro TypeScript",
+    "author": "Steve Fenton",
+    "publisher": "Apress",
+    "isbn": ""
+  },
+  {
+    "title": "Node.js Design Patterns",
+    "author": "Mario Casciaro",
+    "publisher": "Packt",
+    "isbn": ""
+  },
+  {
+    "title": "Learning Node.js Development",
+    "author": "Andrew Mead",
+    "publisher": "Packt",
+    "isbn": ""
+  },
+  {
+    "title": "Mastering React",
+    "author": "Adam Horton",
+    "publisher": "Packt",
+    "isbn": ""
+  },
+  {
+    "title": "React Quickly",
+    "author": "Azat Mardan",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "Pro Angular",
+    "author": "Adam Freeman",
+    "publisher": "Apress",
+    "isbn": ""
+  },
+  {
+    "title": "Angular Up & Running",
+    "author": "Shyam Seshadri",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Programming Angular",
+    "author": "Adam Freeman",
+    "publisher": "Apress",
+    "isbn": ""
+  },
+  {
+    "title": "RxJS in Action",
+    "author": "Paul P. Daniels",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "Pro RxJS",
+    "author": "Nate Murray",
+    "publisher": "Apress",
+    "isbn": ""
+  },
+  {
+    "title": "Understanding ECMAScript 6",
+    "author": "Nicholas C. Zakas",
+    "publisher": "No Starch Press",
+    "isbn": ""
+  },
+  {
+    "title": "JavaScript Patterns",
+    "author": "Stoyan Stefanov",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Programming JavaScript Applications",
+    "author": "Eric Elliott",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Learning React Native",
+    "author": "Bonnie Eisenman",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  },
+  {
+    "title": "Fullstack React",
+    "author": "Anthony Accomazzo",
+    "publisher": "Fullstack.io",
+    "isbn": ""
+  },
+  {
+    "title": "Pro Vue.js",
+    "author": "Adam Freeman",
+    "publisher": "Apress",
+    "isbn": ""
+  },
+  {
+    "title": "Vue.js 3 By Example",
+    "author": "John Au-Yeung",
+    "publisher": "Packt",
+    "isbn": ""
+  },
+  {
+    "title": "Learning Vue.js 3",
+    "author": "Olga Filipova",
+    "publisher": "Packt",
+    "isbn": ""
+  },
+  {
+    "title": "Nuxt.js in Action",
+    "author": "Alex Kyriakidis",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "TypeScript Quickly",
+    "author": "Yakov Fain",
+    "publisher": "Manning",
+    "isbn": ""
+  },
+  {
+    "title": "Programming TypeScript",
+    "author": "Boris Cherny",
+    "publisher": "O'Reilly Media",
+    "isbn": ""
+  }
+]

@@ -16,10 +16,34 @@ def registerBuildGroupTask = { String taskName, String moduleKeyword ->
     }
 }
 
+tasks.register("seed", Exec) {
+    group = "dev"
+    description = "Seeds the database with predefined data using Node.js script"
+
+    workingDir = projectDir
+
+    // Run via shell to let PATH resolve npx/ts-node
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        commandLine "cmd", "/c", "npx ts-node scripts/seed/seed.ts"
+    } else {
+        commandLine "bash", "-c", "npx ts-node scripts/seed/seed.ts"
+    }
+}
+
 registerBuildGroupTask('buildBackend', 'backend')
 registerBuildGroupTask('buildFrontend', 'frontend')
 
-tasks.register("dockerDown", Exec) {
+tasks.register("devStop", Exec) {
+    group = "dev"
+    commandLine "docker", "compose", "stop"
+}
+
+tasks.register("devStart", Exec) {
+    group = "dev"
+    commandLine "docker", "compose", "start"
+}
+
+tasks.register("devTearDown", Exec) {
     group = "dev"
     commandLine "docker", "compose", "down", "--rmi", "local", "-v"
 }
@@ -31,5 +55,5 @@ tasks.register("dockerUp", Exec) {
 
 tasks.register("devUp") {
     group = "dev"
-    dependsOn("buildBackend", "buildFrontend", "dockerDown", "dockerUp")
+    dependsOn("buildBackend", "buildFrontend", "devTearDown", "dockerUp", "seed")
 }
