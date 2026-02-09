@@ -8,10 +8,6 @@ node {
     download = true
 }
 
-plugins {
-    id "com.github.node-gradle.node" version "7.0.2" apply false
-}
-
 tasks.register('buildAll') {
     group = 'build'
     description = 'Builds all subprojects'
@@ -30,19 +26,10 @@ def registerBuildGroupTask = { String taskName, String moduleKeyword ->
     }
 }
 
-tasks.register("seed", Exec) {
-    dependsOn("installNodePackages")
-
+tasks.register("seed", NpmTask) {
     group = "dev"
-    description = "Seeds the database with predefined data using Node.js script"
-
-    workingDir = projectDir
-
-    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-        commandLine "cmd", "/c", "npx ts-node scripts/seed/seed.ts"
-    } else {
-        commandLine "bash", "-c", "npx ts-node scripts/seed/seed.ts"
-    }
+    dependsOn("installNodePackages")
+    args = ["run", "seed"]
 }
 
 registerBuildGroupTask('buildBackend', 'backend')
