@@ -7,31 +7,33 @@
   align-items: center;
   justify-content: space-between;
   height: 64px;
-  padding: 0 1.5rem;
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
-  background: var(--nav-bg, #ffffff);
+  padding: 0 var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--nav-bg);
 }
 
 .brand {
-  font-weight: 600;
-  font-size: 1.1rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--primary-color);
 }
 
 .nav-links {
   display: flex;
-  gap: 1.25rem;
+  gap: var(--spacing-lg);
 }
 
 .nav-links a {
   text-decoration: none;
-  color: var(--nav-link, #374151);
+  color: var(--nav-link);
   font-weight: 500;
   position: relative;
-  padding: 0.25rem 0;
+  padding: var(--spacing-xs) 0;
+  transition: color 0.2s;
 }
 
 .nav-links a.active {
-  color: var(--nav-active, #2563eb);
+  color: var(--nav-active);
 }
 
 .nav-links a.active::after {
@@ -39,7 +41,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -6px;
+  bottom: -4px;
   height: 2px;
   background: currentColor;
 }

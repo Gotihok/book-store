@@ -1,0 +1,22 @@
+.actions {
+  margin-top: var(--spacing-md);
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: var(--spacing-md) 0;
+}
+
+ul li {
+  margin-bottom: var(--spacing-xs);
+  color: var(--text-secondary);
+}
+
+ul li strong {
+  color: var(--text-primary);
+  display: inline-block;
+  width: 100px;
+}

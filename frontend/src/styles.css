@@ -1,7 +1,151 @@
 /* You can add global styles to this file, and also import other style files */
 :root {
+  /* Colors */
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --bg-color: #f9fafb;
+  --card-bg: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --error-color: #ef4444;
+  --border-color: #e5e7eb;
+
+  /* Nav specific */
   --nav-bg: #ffffff;
   --nav-link: #374151;
   --nav-active: #2563eb;
-  --border-color: #e5e7eb;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+
+  /* Misc */
+  --border-radius: 6px;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+h2, h3 {
+  color: var(--text-primary);
+  margin-top: 0;
+}
+
+/* Forms & Inputs */
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+label {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+select,
+textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: #fff;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -1px;
+}
+
+small {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  display: block;
+  margin-top: var(--spacing-xs);
+}
+
+.error {
+  color: var(--error-color);
+  font-weight: 500;
+}
+
+/* Buttons */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  transition: all 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background-color: #f3f4f6;
+}
+
+button[type="submit"] {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.delete-btn {
+  background-color: var(--error-color) !important;
+  color: white !important;
+  border-color: var(--error-color) !important;
+}
+
+.delete-btn:hover:not(:disabled) {
+  filter: brightness(0.9);
+}
+
+/* Layout helpers */
+.actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+}
+
+.registration-form {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: var(--spacing-lg);
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
 }
